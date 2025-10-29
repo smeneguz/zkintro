@@ -240,3 +240,140 @@ We highly recommend installing the above software for following along the tutori
 
 Ti consigliamo vivamente di installare i software sopra indicati per seguire il tutorial e costruire intuizione pratica. Tuttavia, se non vuoi installare nulla, puoi comunque seguire (in forma limitata) usando uno strumento REPL online come [zkrepl.dev](https://zkrepl.dev). Se invece non vuoi installare `just` e preferisci eseguire manualmente tutti i comandi, puoi farlo con un po’ di lavoro extra utilizzando gli script shell forniti.
 
+## First iteration
+
+## Prima iterazione
+
+We are now ready to start coding. To build up to the signature scheme mentioned above, we will start with a very simple program, the equivalent of a "Hello World" in other programming languages.
+
+Siamo finalmente pronti per scrivere del codice. Per arrivare allo schema di firma menzionato in precedenza, cominceremo con un programma molto semplice, l’equivalente di un “Hello World” in altri linguaggi di programmazione.
+
+In practical terms, we will write a special program that will help us prove knowledge of two secret numbers whose product is a public number, _without ever revealing the secret numbers themselves_. For example, the public number might be "33" and the secret numbers are "11" and "3". This is an important stepping stone towards digital signatures and will build help intuition for how ZKPs work. If you are familiar with public-key cryptography, you can - very loosely - think of the secret numbers as a "private key" and the public number as a "public key".
+
+In termini pratici, scriveremo un programma che ci permetterà di dimostrare di conoscere due numeri segreti il cui prodotto è un numero pubblico, _senza mai rivelare i numeri segreti stessi_. Per esempio, il numero pubblico potrebbe essere “33”, mentre i numeri segreti sono “11” e “3”. Questo è un passo fondamentale verso la costruzione delle firme digitali e ci aiuterà a sviluppare l'intuizione su come funzionano le ZKPs. Se conosci la crittografia a chiave pubblica, puoi pensare in modo approssimativo ai numeri segreti come a una “chiave privata” e al numero pubblico come a una “chiave pubblica”.
+
+Since this is a different way of programming involving many new concepts, don't worry if things don't make sense at first. You can always keep going, focusing on the code, generating proofs, etc and come back to a specific section later on.
+
+Dato che si tratta di un approccio alla programmazione piuttosto diverso e ricco di concetti nuovi, non preoccuparti se all’inizio qualcosa non ti è chiaro. Puoi tranquillamente proseguire concentrandoti sul codice, sulla generazione delle prove e sul flusso pratico, per poi tornare in seguito a rivedere una sezione specifica.
+
+### Write a special program
+
+### Scrivere un programma
+
+Unlike most other programming, writing these special programs, circuits, look a bit different. What we are interested in is proving a _set of constraints_. [^4] The simplest set of constraints we can prove consists of a single constraint. [^5] What we will constrain is that two numbers multiplied by each other equal a third one.
+
+A differenza della programmazione tradizionale, scrivere questi programmi speciali (_circuits_) è leggermente diverso. Qui ci interessa dimostrare un _insieme di vincoli_ (constraints). [^4] L’insieme più semplice che possiamo dimostrare è composto da un solo vincolo. [^5] In questo caso, vogliamo imporre che il prodotto di due numeri sia uguale a un terzo.
+
+Go to the `example1` folder in the `zkintro-tutorial` repository above. There's a skeleton program in `example1.circom`. Modify it to look like this:
+
+Vai nella cartella `example1` del repository `zkintro-tutorial`. Troverai un programma di esempio in `example1.circom`. Modificalo in questo modo:
+
+```javascript
+pragma circom 2.0.0;
+
+template Multiplier2 () {
+  signal input a;
+  signal input b;
+  signal output c;
+  c <== a * b;
+}
+
+component main = Multiplier2();
+```
+
+This is our special program, or _circuit_. [^6] Going line by line:
+
+Questo è il nostro programma speciale, ovvero il nostro _circuit_. [^6] Analizziamolo riga per riga:
+
+- `pragma circom 2.0.0;` - definisce la versione di Circom utilizzata
+- `template Multiplier()` - i template sono l’equivalente degli oggetti nella maggior parte dei linguaggi di programmazione, una forma comune di astrazione
+- `signal input a;` - il nostro primo input, `a`; come impostazione predefinita gli input sono privati
+- `signal input b;` - il secondo input, `b`; anch’esso privato per default
+- `signal output c;` - l’output `c`; gli output invece sono sempre pubblici
+- `c <== a * b;` - fa due cose: assegna al segnale `c` un valore _e_ impone che `c` sia uguale al prodotto di `a` e `b`
+- `component main = Multiplier2()` - istanzia il componente principale del circuito
+
+The most important line is `c <== a * b;`. This is where we actually declare our constraint. This expression is actually a combination of two: `<--` (assignment) and `===` (equality constraint). [^7] A constraint in Circom can only use operations involving constants, addition or multiplication. It enforces that both sides of the equation must be equal. [^8]
+
+La riga più importante è `c <== a * b;`. È qui che dichiariamo effettivamente il nostro vincolo. Questa espressione è in realtà la combinazione di due operazioni: `<--` (assegnazione) e `===` (vincolo di uguaglianza). [^7] Un vincolo in Circom può usare solo operazioni con costanti, somme o moltiplicazioni. In pratica impone che entrambi i lati dell’equazione siano uguali. [^8]
+
+### On constraints
+
+### Sui vincoli
+
+How do constraints work? In the context of something like Sudoku, we might say a constraint is "a number between 1 and 9". In the context of Circom however, this is not a single constraint, but instead something we have to express using a set of simpler equality constraints (`===`). [^9]
+
+Come funzionano i vincoli? In un contesto come quello del Sudoku, potremmo dire che un vincolo è “un numero compreso tra 1 e 9”. In Circom, però, questo non è un singolo vincolo, ma un insieme di vincoli di uguaglianza (`===`) che devono essere combinati per rappresentarlo. [^9]
+
+Why is this the case? This has to do with what is mathematically going on under the hood. Fundamentally, most ZKPs use _arithmetic circuits_ which represents computation over _polynomials_. When dealing with polynomials, you can easily introduce constants, add them together, multiply them and check if they are equal to each other. [^10] Other operations have to be expressed in terms of these fundamental operations. You do not have to understand this in detail in order to write ZKPs, but it can be useful to have some intuitition of what is going on under the hood. [^11]
+
+Perché accade questo? La ragione è matematica. La maggior parte delle ZKPs si basa su _arithmetic circuits_, che rappresentano calcoli su _polinomi_. Quando si lavora con polinomi, è facile introdurre costanti, sommarle, moltiplicarle e verificare se due risultati sono uguali. [^10] Tutte le altre operazioni devono essere espresse in termini di queste operazioni fondamentali. Non è necessario comprenderle nei dettagli per scrivere ZKPs, ma avere un minimo di intuizione su cosa succede “sotto il cofano” può essere molto utile. [^11]
+
+We can visualize the circuit as follows:
+
+Possiamo visualizzare il circuito in questo modo:
+
+![example1 circuit](../assets/02_example1_circuit.png "example1 circuit")
+
+### Building our circuit
+
+### Compilare il nostro circuito
+
+For your reference, the final file can be found in `example1-solution.circom`. For more details on the syntax, see the [official documentation](https://docs.circom.io/circom-language/signals/).
+
+Per riferimento, il file finale è disponibile in `example1-solution.circom`. Per maggiori dettagli sulla sintassi puoi consultare la [documentazione ufficiale](https://docs.circom.io/circom-language/signals/).
+
+We can compile our circuit by running:
+
+Possiamo compilare il circuito eseguendo:
+
+```shell
+just build example1
+```
+
+![example1 build](../assets/02_example1_build.png "example1 build")
+
+This is a thin wrapper for calling `circom` to create a `example1.r1cs` and `example1.wasm` file. You should see something like:
+
+Questo comando è un semplice wrapper che richiama `circom` per creare i file `example1.r1cs` e `example1.wasm`. Dovresti vedere un output simile a questo:
+
+```shell
+template instances: 1
+non-linear constraints: 1
+linear constraints: 0
+public inputs: 0
+private inputs: 2
+public outputs: 1
+wires: 4
+labels: 4
+Written successfully: example/target/example1.r1cs
+Written successfully: example/target/example1_js/example1.wasm
+```
+
+In this case, we have the following:
+
+In questo caso, abbiamo:
+
+- due input privati, `a` e `b`
+- un output pubblico, `c`
+- un vincolo (non lineare), `c <== a * b`
+
+We will ignore other parts of the output above for now. [^12] Now we have two files: `example1.r1cs` and `example1.wasm`.
+
+Per ora possiamo ignorare le altre parti dell’output. [^12] Ora abbiamo due file: `example1.r1cs` e `example1.wasm`.
+
+`r1cs` stands for *Rank 1 Constraint System*. This file contains our circuit in binary form. and corresponds to how we define our constraints mathematically. [^13]
+
+`r1cs` sta per *Rank 1 Constraint System*. Questo file contiene il circuito in forma binaria e rappresenta il modo in cui i nostri vincoli vengono definiti matematicamente. [^13]
+
+The `.wasm` file contains WebAssembly, which is what we need to generate our *witness*. The witness is how we specify the inputs that we want to keep private while still using them to create a proof.
+
+Il file `.wasm` contiene il codice WebAssembly, necessario per generare il nostro *witness* (testimone). Il witness è ciò che ci permette di specificare gli input che vogliamo mantenere privati, pur usandoli per creare una prova.
+
+We are not quite ready to make proofs yet though. First we need to perform a *setup* to get our prover and verification key.
+
+Non siamo ancora pronti per generare le prove. Prima dobbiamo eseguire un *setup* per ottenere le chiavi del *prover* e del *verifier*.
+
+Don't worry if it all doesn't make sense yet. It is a new way of doing things and it takes a while to get used to.
+
+Non preoccuparti se tutto questo non ti è ancora chiaro. È un nuovo modo di lavorare e richiede un po’ di tempo per abituarsi.
