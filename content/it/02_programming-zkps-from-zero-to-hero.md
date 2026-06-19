@@ -233,7 +233,7 @@ Per ora possiamo ignorare le altre parti dell'output. [^12] Ora abbiamo due file
 
 Il file `.wasm` contiene WASM (WebAssembly), necessario per generare il nostro _witness_ (testimone). Il witness è ciò che ci permette di specificare gli input che vogliamo mantenere privati, pur usandoli per creare una prova.
 
-Non siamo ancora pronti per generare le prove, però. Prima dobbiamo eseguire un _setup_ per ottenere la proving key e la verification key.
+Detto ciò, non siamo ancora pronti per generare le prove. Prima dobbiamo eseguire un _setup_ per ottenere la proving key e la verification key.
 
 Non preoccuparti se tutto questo non ti è ancora chiaro. È un nuovo modo di lavorare e richiede un po' di tempo per abituarsi.
 
@@ -241,7 +241,7 @@ Non preoccuparti se tutto questo non ti è ancora chiaro. È un nuovo modo di la
 
 Con gli artefatti generati in precedenza possiamo eseguire un _trusted setup_ (setup fidato).
 
-Un trusted setup è un'operazione che eseguiamo una sola volta come fase di pre-elaborazione. Genera quello che è chiamato _Common Reference String_ (CRS), che consiste in una _proving key_ (chiave di dimostrazione) e una _verification key_ (chiave di verifica). Queste chiavi possono poi essere utilizzate ogni volta che vogliamo generare e verificare prove, rispettivamente.
+Un trusted setup è un'operazione che eseguiamo una sola volta come fase di pre-elaborazione. Genera quello che è chiamato _Common Reference String_ (CRS), che consiste in una _proving key_ (chiave di dimostrazione) e una _verification key_ (chiave di verifica). Queste chiavi possono poi essere utilizzate ogni volta che vogliamo generare e verificare prove.
 
 ![Trusted setup](../assets/02_example1_setup1.png 'Trusted setup')
 
@@ -263,7 +263,7 @@ Vale anche la pena sapere che diversi sistemi di dimostrazione ZKP hanno proprie
 
 Con Circom utilizziamo il _sistema di dimostrazione Groth16_, che richiede un trusted setup. In particolare, il setup è suddiviso in due fasi: fase 1 e fase 2. La fase 1 è indipendente dal circuito e può essere utilizzata da qualsiasi programma ZKP fino a una certa dimensione, mentre la fase 2 è _specifica del circuito_. Quando abbiamo eseguito il comando precedente, abbiamo eseguito entrambe le fasi.
 
-Potresti chiederti: perché usare un trusted setup quando si può evitarlo? Molti condividono questa visione. Eppure esistono buone ragioni per cui si ricorre ancora a questi sistemi — ad esempio strumenti e un ecosistema più maturi, nonché costi di verifica ridotti. Questi ultimi sono tradizionalmente molto importanti, specialmente quando si verificano prove su una blockchain pubblica come Ethereum. A seconda del caso d'uso, la scelta sarà probabilmente diversa. In un altro articolo approfondiremo i trusted setup e i loro compromessi, oltre ai diversi sistemi di dimostrazione.
+Potresti chiederti: perché usare un trusted setup quando si può evitarlo? Molti condividono questa visione. Eppure esistono buone ragioni per cui si ricorre ancora a questi sistemi,come ad esempio strumenti e un ecosistema più maturi, nonché costi di verifica ridotti. Questi ultimi sono tradizionalmente molto importanti, specialmente quando si verificano prove su una blockchain pubblica come Ethereum. A seconda del caso d'uso, la scelta sarà probabilmente diversa. In un altro articolo approfondiremo i trusted setup e i loro compromessi, oltre ai diversi sistemi di dimostrazione.
 
 ### Generare la prova
 
@@ -278,7 +278,7 @@ In concreto, dimostreremo che 33 può essere ottenuto moltiplicando 3 per 11. Ri
 }
 ```
 
-Cioè, specifichiamo l'input come una mappa JSON, dove la chiave è il nome del segnale e il valore è quello che vogliamo assegnargli. Nota che il valore è una stringa, anche se concettualmente è un numero. Questa è una particolarità di Circom e della sua API JavaScript. Per via della natura delle ZKP, spesso si lavora con numeri molto grandi che richiedono l'uso di BigInt. Il modo più semplice per specificare un numero così grande in un file JSON è come stringa, che verrà poi convertita in BigInt.
+Cioè, specifichiamo l'input come una mappa JSON, dove la chiave è il nome del segnale e il valore è quello che vogliamo assegnargli. Nota che il valore è una stringa, anche se concettualmente è un numero. Questa è una particolarità di Circom e della sua API JavaScript. Per via della natura delle ZKP, spesso si lavora con numeri molto grandi che richiedono l'uso di _BigInt_. Il modo più semplice per specificare un numero così grande in un file JSON è come stringa, che verrà poi convertita in BigInt.
 
 Possiamo creare una prova usando il nostro circuito compilato (in forma WASM), la nostra proving key e l'input, eseguendo:
 
