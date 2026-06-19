@@ -1,37 +1,40 @@
 ---
-title: 'Programming ZKPs: From Zero to Hero'
+title: 'Programmare le ZKP: From Zero to Hero'
 date: '2024-08-30'
 tags: ['zero-knowledge']
 draft: false
 layout: PostSimple
 slug: "programming-zkps-from-zero-to-hero"
 images: [../assets/02_combined.png']
-summary: "Learn to write and modify Zero Knowledge Proofs from scratch. You'll build a digital signature scheme using hash-based commitments, gaining practical ZKP programming skills and intuition along the way. By the end, you'll have all the tools you need to implement things like group signatures."
+summary: "Impara a scrivere e modificare Zero Knowledge Proofs (ZKP, dimostrazioni a conoscenza zero) da zero. Costruirai uno schema di firma digitale basato su commitment basati su funzioni di hash, acquisendo competenze pratiche e intuizione sulla programmazione ZKP strada facendo. Alla fine, avrai tutti gli strumenti necessari per implementare cose come le firme di gruppo."
+translator: 'Silvio Meneguzzo'
 ---
 
-_A tutorial introduction for the working programmer._
+_Questo libro è stato tradotto e adattato da Silvio Meneguzzo_
 
-Do you know why zebras have stripes? One theory is that it is a form of camouflage. When zebras are in a herd together, it makes it harder for the lion to distinguish their prey. Lions have to isolate their prey from the flock to be able to go after it. [^1]
+_Un'introduzione pratica e guidata per chi programma._
 
-Humans like to hide in a crowd too. One specific example of this is when multiple people act as one under a collective name. This was done for the Federalist Papers which led to the ratification of the United States Constitution. Multiple individuals wrote essays under the single Pseudonym "Publius". [^2] Another example is Bourbaki, a collective pseudonym for a group of French mathematicians in the 1930s. This lead to a complete re-write of large parts of modern mathematics with their focus on rigor and the axiomatic method. [^3]
+Sai perché le zebre hanno le strisce? Una teoria è che si tratti di un meccanismo di mimetizzazione. Quando sono in branco, diventa più difficile per il leone distinguere la preda. I leoni devono isolarla dal branco per poterla inseguire. [^1]
 
-![Bourbaki Congress](../assets/02_bourbaki.png 'Bourbaki Congress')
+Anche gli esseri umani amano nascondersi nella folla. Un esempio concreto è quando più persone agiscono come una sola sotto un nome collettivo. È il caso dei Federalist Papers, che contribuirono alla ratifica della Costituzione degli Stati Uniti: più autori scrissero saggi firmati da un solo pseudonimo, "Publius". [^2] Un altro esempio è Bourbaki, pseudonimo collettivo di un gruppo di matematici francesi degli anni '30. Il loro lavoro portò a una riscrittura completa di grandi parti della matematica moderna, con la loro enfasi sul rigore e sul metodo assiomatico. [^3]
 
-_Bourbaki congress in 1938_
+![Congresso Bourbaki](../assets/02_bourbaki.png "Congresso Bourbaki")
 
-In the digital age, let's say you are in a group chat and want to send a controversial message. You want to prove that you are one of its members, without revealing which one. How can we do this in the digital realm using cryptography? We can use something called _group signatures_.
+_Congresso Bourbaki nel 1938_
 
-Traditionally speaking, group signatures are quite mathematically involved and hard to implement. However, with Zero Knowledge Proofs (ZKPs), this math problem becomes a straightforward programming task. By the end of this article, you'll be able to program group signatures yourself.
+Nell'era digitale, immaginiamo tu sia in una chat di gruppo e voglia inviare un messaggio controverso. Vuoi dimostrare di essere uno dei suoi membri, senza rivelare quale. Come si può fare questo nel mondo digitale usando la crittografia? Si usano le cosiddette _firme di gruppo_ (group signatures).
 
-## Introduction
+Tradizionalmente, le firme di gruppo sono complesse dal punto di vista matematico e difficili da implementare. Ma con le Zero Knowledge Proofs, questo problema matematico si trasforma in un compito di programmazione semplice. Alla fine di questo articolo, sarai in grado di programmare da solo le firme di gruppo.
 
-This post will show you how to write basic Zero Knowledge Proofs (ZKPs) from scratch.
+## Introduzione
 
-When learning a new tech stack, we want to get a hang of the edit-build-run cycle as soon as possible. Only then can we start to learn from our own experience.
+In questo articolo vedremo come scrivere da zero prove a conoscenza zero basilari.
 
-We will start by getting you to setup your environment, write a simple program, perform a so-called trusted setup, and then generate and verify proofs as quickly as possible. After that, we'll identify some ways to improve our program, implement these improvements and test them. Along the way, we'll build up a better mental model of the pieces involved in programming ZKPs in practice. At the end of, you'll be familiar with (one way of) writing ZKPs from scratch.
+Quando si impara una nuova tecnologia, la prima cosa è prendere confidenza con il ciclo modifica-costruzione-esecuzione. Solo allora si inizia davvero a imparare dall'esperienza.
 
-We will build up step by step to a simple signature scheme where you can prove that you sent a specific message. You'll be able to understand what this piece of code is doing and why:
+Partiremo impostando l'ambiente di sviluppo, scrivendo un programma semplice, eseguendo un cosiddetto trusted setup (setup fidato), e generando e verificando prove. Poi vedremo come migliorare il nostro programma, implementeremo questi miglioramenti e li testeremo. Durante il percorso costruiremo un modello mentale più chiaro di cosa significa programmare con le ZKP nella pratica. Alla fine, avrai familiarità con (un modo di) scrivere ZKP da zero.
+
+Costruiremo passo dopo passo uno schema di firma semplice, in cui puoi dimostrare di aver inviato un certo messaggio. Sarai in grado di capire cosa fa questo frammento di codice e perché:
 
 ```javascript
 template SignMessage () {
@@ -53,66 +56,66 @@ template SignMessage () {
 component main {public [identity_commitment, message]} = SignMessage();
 ```
 
-You'll also have been given all the tools and techniques necessary to modify this to support the group signature scheme mentioned above.
+Avrai anche a disposizione tutti gli strumenti e le tecniche necessarie per modificare questo schema e adattarlo a supportare la firma di gruppo (group signature) descritta sopra.
 
-### Pre-requisites
+### Prerequisiti
 
-We assume you are a software engineer with working experience in more than one programming language, who has basic familiar with using Unix-style command line interfaces. We also assume you have a passing familiarity with concepts like _digital signatures_, _public-key cryptography_ and _hash functions_. Nonetheless, we'll introduce their relevant properties as they become relevant.
+Diamo per scontato che tu sia un software engineer con esperienza pratica in più di un linguaggio di programmazione e con una conoscenza di base dell'uso di interfacce a riga di comando in stile Unix. Supponiamo inoltre che tu abbia almeno una conoscenza superficiale di concetti come le _firme digitali_, la _crittografia a chiave pubblica_ e le _funzioni di hash_. In ogni caso, introdurremo le proprietà rilevanti man mano che saranno necessarie.
 
-When it comes to _Zero Knowledge Proofs_, we assume you've read my previous post, [_A Friendly Introduction to Zero Knowledge_](https://zkintro.com/articles/friendly-introduction-to-zero-knowledge). If you haven't read this article, we'll quickly recap the most important things here. For better understanding, we recommend reading the above article first. If you have already read it, you can safely skip the below.
+Per quanto riguarda le _Zero Knowledge Proofs_, assumiamo che tu abbia già letto il mio articolo precedente, [_Introduzione semplificata alla Zero Knowledge_](https://zkintro.com/it/articles/friendly-introduction-to-zero-knowledge). Se non l'hai ancora letto, qui faremo un rapido riepilogo dei concetti fondamentali. Per una comprensione migliore ti consiglio di leggere prima quell'articolo. Se invece lo hai già letto, puoi tranquillamente saltare la sezione seguente.
 
-### Recap of ZKPs
+### Riepilogo sulle ZKP
 
-Zero Knowledge Proofs (ZKPs) are a fairly new form of cryptography that have seen more practical applications lately. While traditional cryptography allows us to do things like signatures and encryption, ZKPs allows us to prove arbitrary statements in a general-purpose way.
+Le Zero Knowledge Proofs sono una forma relativamente nuova di crittografia che negli ultimi anni ha trovato applicazioni pratiche sempre più numerose. Se la crittografia tradizionale ci permette di realizzare cose come firme e cifratura, le ZKP consentono di dimostrare asserzioni arbitrarie in modo general-purpose (generico).
 
-Outside of proving arbitrary statements, ZKPs give us two key properties: privacy and compression. These are also known as zero knowledge and succinctness, respectively. Privacy means we can prove something without revealing anything else. Compression means the proof of an arbitrary statement stays roughly the same size regardless of how complex the computation we are proving is. ZKPs are also general-purpose. Roughly speaking, this is the difference between a calculator, made for a specific task, and a computer, that can compute anything.
+Oltre alla possibilità di dimostrare asserzioni arbitrarie, le ZKP ci offrono due proprietà fondamentali: privacy e compressione. Queste sono note anche rispettivamente come _zero knowledge_ e _succinctness_. Privacy significa poter dimostrare qualcosa senza rivelare nient'altro. Compressione significa che la prova di un'asserzione arbitraria rimane all'incirca della stessa dimensione indipendentemente dalla complessità del calcolo che stiamo dimostrando. Le ZKP sono inoltre general-purpose. In termini semplici, è la differenza tra una calcolatrice, progettata per un compito specifico, e un computer, capace di eseguire qualsiasi calcolo.
 
-Two concrete examples of ZKPs:
+Due esempi concreti di ZKP:
 
-- We can take a digital identity card and prove that we are over 18 years old
-  - Without revealing anything else, like your full name or address
-- We can prove that all state transitions have been executed correctly
-  - Such as in a public blockchain, with the resulting proof being very small
+- Possiamo usare una carta d'identità digitale per dimostrare di avere più di 18 anni
+  - Senza rivelare nient'altro, come il nome completo o l'indirizzo
+- Possiamo dimostrare che tutte le transizioni di stato sono state eseguite correttamente
+  - Ad esempio in una blockchain pubblica, con la prova risultante molto piccola
 
-We can program many common types of ZKPs by writing special programs known as circuits. This allows one party, a prover, to create a proof of some statement. Another party, known as a verifier, can then verify this proof. Like a normal program, this program can take input and produce output. For these special programs, we can specify if the input is private or public. If it is private, it means only the prover can see this input. We program circuits by specifying constraints. One example of a constraint is "in a Sudoku puzzle all numbers 1 through 9 must be used exactly once in a row".
+Possiamo programmare molti tipi comuni di ZKPs scrivendo programmi speciali chiamati circuiti. Questo consente a una parte, detta prover, di creare una prova di una certa asserzione. Un'altra parte, detta verifier, può poi verificarla. Come un normale programma, anche questi circuiti possono ricevere input e produrre output. Per questi programmi speciali possiamo specificare se l'input è pubblico o privato. Se è privato, significa che solo il prover può vederlo. Programmiamo i circuiti definendo dei vincoli (constraints). Un esempio di vincolo è: "in un Sudoku, i numeri da 1 a 9 devono comparire esattamente una volta in ogni riga".
 
-ZKPs are fairly new but they are already used a lot in public blockchains, for example, to allow private payments with fungible money, or to allow more transactions to be processed faster.
+Le ZKP sono piuttosto nuove ma già largamente utilizzate nelle blockchain pubbliche. Ad esempio, permettono pagamenti privati con moneta fungibile oppure consentono di elaborare un numero maggiore di transazioni più rapidamente.
 
-More and more applications are being discovered and developed every day. There are also a lot of different flavors of ZKPs, all with their own set of trade-offs, and it is a very active area of research. These different flavors are being developed rapidly, and allow for increased efficiency and other affordances.
+Ogni giorno vengono scoperte e sviluppate nuove applicazioni. Esistono inoltre molte varianti di ZKP, ciascuna con i propri compromessi, ed è un campo di ricerca estremamente attivo. Queste diverse varianti si stanno sviluppando rapidamente e consentono maggiore efficienza e nuove possibilità d'uso.
 
-## Overview
+## Panoramica
 
-We are going to use Circom and Groth16. Circom is a domain-specific language (DSL) for writing ZKP circuits. Groth16 is a common and popular proving system. Roughly speaking, a proving system is just one way that you can program ZKPs. Other DSLs and proving systems also exists.
+Utilizzeremo Circom e Groth16. Circom è un _domain-specific language_ (DSL, linguaggio specifico di dominio) per scrivere circuiti ZKP. Groth16 è un sistema di dimostrazione tra i più diffusi e utilizzati. In termini semplici, un sistema di dimostrazione non è altro che uno dei modi in cui è possibile programmare le ZKP. Esistono anche altri DSL e sistemi di dimostrazione.
 
-We'll start by installing some tools and dependencies. After that, we'll proceed in the following rough steps:
+Inizieremo installando strumenti e dipendenze. A grandi linee, seguiremo poi questi passaggi:
 
-- Write (write circuit)
-- Build (build circuit)
+- Scrivere (scrivere il circuito)
+- Costruire (costruire il circuito)
 - Setup (trusted setup)
-- Prove (generate proof)
-- Verify (verify proof)
+- Dimostrare (generare la prova)
+- Verificare (verificare la prova)
 
-After having gone through this flow once, we'll look at some problems with the current approach. We'll then make several incremental improvements, building up to the signature scheme above. Along the way, we'll explain necessary concepts and syntax.
+Dopo aver seguito una prima volta questo flusso, vedremo quali sono i limiti dell'approccio iniziale. Poi introdurremo miglioramenti graduali fino ad arrivare allo schema di firma presentato sopra. Strada facendo, spiegheremo i concetti e la sintassi necessari.
 
-At the end of each section, we'll also include some simple exercises that will check your understanding. These exercises are recommended. At the very end of the article we'll also include a list of problems. Problems are optional and require a lot more effort.
+Alla fine di ogni sezione proporremo anche alcuni esercizi semplici per verificare la comprensione. Questi esercizi sono consigliati. Alla fine dell'articolo troverai inoltre una lista di problemi opzionali, che richiedono molto più impegno.
 
-### Preparation
+### Preparazione
 
-First up, we have to install some tools and dependencies. We have prepared a [git repo](https://github.com/oskarth/zkintro-tutorial) that makes it easier for you to get started without getting lost in the weeds with details. If you prefer not to install any software, see the end of this section.
+Per prima cosa dobbiamo installare alcuni strumenti e dipendenze. Abbiamo preparato un [git repo](https://github.com/oskarth/zkintro-tutorial) per semplificare l'avvio ed evitarti di perderti nei dettagli. Se preferisci non installare alcun software, vedi la fine di questa sezione.
 
-The pre-requisites we require are:
+I prerequisiti richiesti sono:
 
-- `rust` (the programming language)
-- `just` (a modern `make`)
-- `npm` (package manager for JavaScript)
+- `rust` (il linguaggio di programmazione)
+- `just` (un moderno sostituto di `make`)
+- `npm` (gestore di pacchetti per JavaScript)
 
-The ZKP tools we will actually use are:
+Gli strumenti ZKP che utilizzeremo sono:
 
-- `circom` (for building our special program, or _circuit_)
-- `snarkjs` (for setup, and generating/verifying proofs)
-- `just` tasks (to simplify common operations related to above)
+- `circom` (per costruire il nostro programma speciale, ovvero il _circuito_)
+- `snarkjs` (per il setup e per generare/verificare prove)
+- task di `just` (per semplificare le operazioni comuni legate a quanto sopra)
 
-To install the above as well as make building and running things easier you can clone and use the [git repo](https://github.com/oskarth/zkintro-tutorial). This should work on any Unix-like system like MacOS and Linux. If you use Windows we suggest using a Linux VM, Windows Subsystem for Linux (WSL), or similar for development.
+Per installare tutto e semplificare build ed esecuzione, puoi clonare e usare il [git repo](https://github.com/oskarth/zkintro-tutorial). Questo dovrebbe funzionare su qualsiasi sistema Unix-like come MacOS e Linux. Se usi Windows, ti consigliamo una VM Linux, Windows Subsystem for Linux (WSL) o strumenti simili per lo sviluppo.
 
 ```shell
 # Clone the repo and run the prepare script
@@ -124,9 +127,9 @@ less ./scripts/prepare.sh
 ./scripts/prepare.sh
 ```
 
-We recommend you skim the contents of `./scripts/prepare.sh` to see what this will install, or if you prefer to install things manually. Once executed you should see `Installation complete` and no errors.
+Ti consigliamo di dare un'occhiata al contenuto di `./scripts/prepare.sh` per vedere cosa verrà installato, o se preferisci installare manualmente gli strumenti. Una volta eseguito lo script, dovresti vedere `Installation complete` e nessun errore.
 
-If you get stuck, please see the latest official documentation [here](https://docs.circom.io/getting-started/installation/). Once done, you should have the following versions (or higher) installed:
+Se incontri difficoltà, consulta la documentazione ufficiale aggiornata [qui](https://docs.circom.io/getting-started/installation/). Al termine, dovresti avere installato le seguenti versioni (o superiori):
 
 ```shell
 > circom --version
@@ -136,25 +139,25 @@ circom compiler 2.1.8
 snarkjs@0.7.4
 ```
 
-In the repo there is a `justfile` that defines a set of common commands. These `just` commands aim to simplify common operations on ZKPs, so you can focus on conceptual understanding of the actual steps involved. This makes the process much less error-prone when you are starting out.
+Nel repository c'è un `justfile` che definisce una serie di comandi comuni. Questi comandi di `just` servono a semplificare le operazioni più frequenti sulle ZKP, così puoi concentrarti sul comprendere i concetti alla base di ogni passaggio. Questo riduce notevolmente il rischio di errori, soprattutto all'inizio.
 
-If at any time you want to see in more detail what commands are being executed, we recommend you look at the `justfile` and the various scripts in the `scripts` folder.
+Se in qualsiasi momento vuoi capire nel dettaglio quali comandi vengono eseguiti, ti consigliamo di guardare il `justfile` e i vari script nella cartella `scripts`.
 
-We highly recommend installing the above software for following along the tutorial and building intuition. However, If you do not want to install any software, you can follow along in a limited capacity using an online REPL (Read-Eval-Print Loop) tool such [zkrepl.dev](https://zkrepl.dev). If you do not want to install `just` and prefer to execute all the commands yourself you can do so with a little extra effort by using the accompanying shell scripts.
+Ti consigliamo vivamente di installare i software sopra indicati per seguire il tutorial e sviluppare un'intuizione pratica. Tuttavia, se non vuoi installare nulla, puoi comunque seguire, seppur con alcune limitazioni, usando uno strumento REPL (Read-Eval-Print Loop) online come [zkrepl.dev](https://zkrepl.dev). Se invece non vuoi installare `just` e preferisci eseguire manualmente tutti i comandi, puoi farlo con un po' di lavoro extra utilizzando gli script shell forniti.
 
-## First iteration
+## Prima iterazione
 
-We are now ready to start coding. To build up to the signature scheme mentioned above, we will start with a very simple program, the equivalent of a "Hello World" in other programming languages.
+Siamo ora pronti per scrivere del codice. Per arrivare allo schema di firma menzionato in precedenza, cominceremo con un programma molto semplice, l'equivalente di un "Hello World" in altri linguaggi di programmazione.
 
-In practical terms, we will write a special program that will help us prove knowledge of two secret numbers whose product is a public number, _without ever revealing the secret numbers themselves_. For example, the public number might be "33" and the secret numbers are "11" and "3". This is an important stepping stone towards digital signatures and will build help intuition for how ZKPs work. If you are familiar with public-key cryptography, you can - very loosely - think of the secret numbers as a "private key" and the public number as a "public key".
+In termini pratici, scriveremo un programma speciale che ci permetterà di dimostrare di conoscere due numeri segreti il cui prodotto è un numero pubblico, _senza mai rivelare i numeri segreti stessi_. Per esempio, il numero pubblico potrebbe essere "33", mentre i numeri segreti sono "11" e "3". Questo è un passo fondamentale verso la costruzione delle firme digitali e ci aiuterà a sviluppare l'intuizione su come funzionano le ZKP. Se conosci la crittografia a chiave pubblica, puoi pensare grosso modo ai numeri segreti come a una "chiave privata" e al numero pubblico come a una "chiave pubblica".
 
-Since this is a different way of programming involving many new concepts, don't worry if things don't make sense at first. You can always keep going, focusing on the code, generating proofs, etc and come back to a specific section later on.
+Dato che si tratta di un approccio alla programmazione piuttosto diverso e ricco di concetti nuovi, non preoccuparti se all'inizio qualcosa non ti è chiaro. Puoi tranquillamente proseguire concentrandoti sul codice, sulla generazione delle prove, ecc., per poi tornare in seguito a rivedere una sezione specifica.
 
-### Write a special program
+### Scrivere un programma speciale
 
-Unlike most other programming, writing these special programs, circuits, look a bit different. What we are interested in is proving a _set of constraints_. [^4] The simplest set of constraints we can prove consists of a single constraint. [^5] What we will constrain is that two numbers multiplied by each other equal a third one.
+A differenza della programmazione tradizionale, scrivere questi programmi speciali (i circuiti) è leggermente diverso. Qui ci interessa dimostrare un _insieme di vincoli_ (constraints). [^4] L'insieme più semplice che possiamo dimostrare è composto da un solo vincolo. [^5] In questo caso, vogliamo imporre che il prodotto di due numeri sia uguale a un terzo.
 
-Go to the `example1` folder in the `zkintro-tutorial` repository above. There's a skeleton program in `example1.circom`. Modify it to look like this:
+Vai nella cartella `example1` del repository `zkintro-tutorial`. Troverai un programma scheletro in `example1.circom`. Modificalo in questo modo:
 
 ```javascript
 pragma circom 2.0.0;
@@ -169,33 +172,33 @@ template Multiplier2 () {
 component main = Multiplier2();
 ```
 
-This is our special program, or _circuit_. [^6] Going line by line:
+Questo è il nostro programma speciale, ovvero il nostro _circuito_. [^6] Analizziamolo riga per riga:
 
-- `pragma circom 2.0.0;`- defines the version of Circom being used
-- `template Multiplier()` - templates are the equivalent to objects in most programming languages, a common form of abstraction
-- `signal input a;` - our first input, `a`; inputs are private by default
-- `signal input b;` - our second input, `b`; also private by default
-- `signal output c;` - our output, `c`; outputs are always public
-- `c <== a * b;` - this does two things: assigns the signal `c` a value _and_ constrains `c` to be equal to the product of `a` and `b`
-- `component main = Multiplier2()` - instantiates our main component
+- `pragma circom 2.0.0;` - definisce la versione di Circom utilizzata
+- `template Multiplier()` - i template sono l'equivalente degli oggetti nella maggior parte dei linguaggi di programmazione, una forma comune di astrazione
+- `signal input a;` - il nostro primo input, `a`; gli input sono privati per impostazione predefinita
+- `signal input b;` - il secondo input, `b`; anch'esso privato per impostazione predefinita
+- `signal output c;` - l'output `c`; gli output sono sempre pubblici
+- `c <== a * b;` - fa due cose: assegna al segnale `c` un valore _e_ impone che `c` sia uguale al prodotto di `a` e `b`
+- `component main = Multiplier2()` - istanzia il componente principale
 
-The most important line is `c <== a * b;`. This is where we actually declare our constraint. This expression is actually a combination of two: `<--` (assignment) and `===` (equality constraint). [^7] A constraint in Circom can only use operations involving constants, addition or multiplication. It enforces that both sides of the equation must be equal. [^8]
+La riga più importante è `c <== a * b;`. È qui che dichiariamo effettivamente il nostro vincolo. Questa espressione è in realtà la combinazione di due operazioni: `<--` (assegnazione) e `===` (vincolo di uguaglianza). [^7] Un vincolo in Circom può usare solo operazioni con costanti, addizioni o moltiplicazioni. In pratica impone che entrambi i lati dell'equazione siano uguali. [^8]
 
-### On constraints
+### Sui vincoli
 
-How do constraints work? In the context of something like Sudoku, we might say a constraint is "a number between 1 and 9". In the context of Circom however, this is not a single constraint, but instead something we have to express using a set of simpler equality constraints (`===`). [^9]
+Come funzionano i vincoli? In un contesto come quello del Sudoku, potremmo dire che un vincolo è "un numero compreso tra 1 e 9". In Circom, però, questo non è un singolo vincolo, ma qualcosa che dobbiamo esprimere usando un insieme di vincoli di uguaglianza (`===`) più semplici. [^9]
 
-Why is this the case? This has to do with what is mathematically going on under the hood. Fundamentally, most ZKPs use _arithmetic circuits_ which represents computation over _polynomials_. When dealing with polynomials, you can easily introduce constants, add them together, multiply them and check if they are equal to each other. [^10] Other operations have to be expressed in terms of these fundamental operations. You do not have to understand this in detail in order to write ZKPs, but it can be useful to have some intuitition of what is going on under the hood. [^11]
+Perché accade questo? La ragione è matematica. La maggior parte delle ZKP si basa su _circuiti aritmetici_, che rappresentano calcoli su _polinomi_. Quando si lavora con polinomi, è facile introdurre costanti, sommarle, moltiplicarle e verificare se due risultati sono uguali tra loro. [^10] Tutte le altre operazioni devono essere espresse in termini di queste operazioni fondamentali. Non è necessario comprendere tutto questo nei dettagli per scrivere ZKP, ma avere un minimo di intuizione su cosa succede "sotto il cofano" può essere molto utile. [^11]
 
-We can visualize the circuit as follows:
+Possiamo visualizzare il circuito in questo modo:
 
-![example1 circuit](../assets/02_example1_circuit.png 'example1 circuit')
+![esempio1 circuito](../assets/02_example1_circuit.png 'example1 circuit')
 
-### Building our circuit
+### Compilare il nostro circuito
 
-For your reference, the final file can be found in `example1-solution.circom`. For more details on the syntax, see the [official documentation](https://docs.circom.io/circom-language/signals/).
+Per riferimento, il file finale è disponibile in `example1-solution.circom`. Per maggiori dettagli sulla sintassi, consulta la [documentazione ufficiale](https://docs.circom.io/circom-language/signals/).
 
-We can compile our circuit by running:
+Possiamo compilare il circuito eseguendo:
 
 ```shell
 just build example1
@@ -203,7 +206,7 @@ just build example1
 
 ![example1 build](../assets/02_example1_build.png 'example1 build')
 
-This is a thin wrapper for calling `circom` to create a `example1.r1cs` and `example1.wasm` file. You should see something like:
+Questo comando è un piccolo wrapper che si limita a richiamare `circom` per creare i file `example1.r1cs` e `example1.wasm`. Dovresti vedere un output simile a questo:
 
 ```shell
 template instances: 1
@@ -218,55 +221,55 @@ Written successfully: example/target/example1.r1cs
 Written successfully: example/target/example1_js/example1.wasm
 ```
 
-In this case, we have the following:
+In questo caso, abbiamo:
 
-- two private inputs, `a` and `b`
-- one public output, `c`
-- one (non-linear) constraint, `c <== a * b`
+- due input privati, `a` e `b`
+- un output pubblico, `c`
+- un vincolo (non lineare), `c <== a * b`
 
-We will ignore other parts of the output above for now. [^12] Now we have two files: `example1.r1cs` and `example1.wasm`.
+Per ora possiamo ignorare le altre parti dell'output. [^12] Ora abbiamo due file: `example1.r1cs` e `example1.wasm`.
 
-`r1cs` stands for _Rank 1 Constraint System_. This file contains our circuit in binary form. and corresponds to how we define our constraints mathematically. [^13]
+`r1cs` sta per _Rank 1 Constraint System_ (sistema di vincoli di rango 1, R1CS). Questo file contiene il circuito in forma binaria e rappresenta il modo in cui i nostri vincoli vengono definiti matematicamente. [^13]
 
-The `.wasm` file contains WebAssembly, which is what we need to generate our _witness_. The witness is how we specify the inputs that we want to keep private while still using them to create a proof.
+Il file `.wasm` contiene WASM (WebAssembly), necessario per generare il nostro _witness_ (testimone). Il witness è ciò che ci permette di specificare gli input che vogliamo mantenere privati, pur usandoli per creare una prova.
 
-We are not quite ready to make proofs yet though. First we need to perform a _setup_ to get our prover and verification key.
+Non siamo ancora pronti per generare le prove, però. Prima dobbiamo eseguire un _setup_ per ottenere la proving key e la verification key.
 
-Don't worry if it all doesn't make sense yet. It is a new way of doing things and it takes a while to get used to.
+Non preoccuparti se tutto questo non ti è ancora chiaro. È un nuovo modo di lavorare e richiede un po' di tempo per abituarsi.
 
 ### Trusted setup
 
-With the artifacts we generated above, we can perform a _trusted setup_.
+Con gli artefatti generati in precedenza possiamo eseguire un _trusted setup_ (setup fidato).
 
-A trusted setup is something we run once as a pre-processing step. This generates what is called a _Common Reference String_ (CRS), which consists of a _proving key_ and a _verification key_. These keys can then be used every time we want to generate and verify proofs, respectively.
+Un trusted setup è un'operazione che eseguiamo una sola volta come fase di pre-elaborazione. Genera quello che è chiamato _Common Reference String_ (CRS), che consiste in una _proving key_ (chiave di dimostrazione) e una _verification key_ (chiave di verifica). Queste chiavi possono poi essere utilizzate ogni volta che vogliamo generare e verificare prove, rispettivamente.
 
 ![Trusted setup](../assets/02_example1_setup1.png 'Trusted setup')
 
-Why do we need these keys and who should have access to them? The prover key embeds all the information necessary to be able to generate a proof in a zero-knowledge preserving fashion for that specific circuit. Similarly, the verifier key embeds all the information necessary to verify that the proof is indeed correct. These aren't private keys, but instead information that can and should be publicly distributed. Any party that needs to generate or verify a proof should have access to them. [^14]
+Perché abbiamo bisogno di queste chiavi e chi dovrebbe avervi accesso? La proving key incorpora tutte le informazioni necessarie per generare una prova a conoscenza zero per quel circuito specifico. Analogamente, la verification key incorpora tutte le informazioni necessarie per verificare che la prova sia effettivamente corretta. Non si tratta di chiavi private, ma di informazioni che possono e devono essere distribuite pubblicamente. Chiunque debba generare o verificare una prova dovrebbe potervi accedere. [^14]
 
-Why do we call it a trusted setup? Performing a setup is a process that involves multiple participants and it is sometimes called a _ceremony_. [^15] All participants cooperate to create a cryptographic "secret", and this is the basis of how the proving and verification keys are constructed. If this process is manipulated, cryptographically it may be possible to create false proofs or falsely claim invalid proofs as verified. Hence, there's an assumption of trust that least some participants are honest in the setup process, giving rise to the term "trusted setup".
+Perché lo chiamiamo trusted setup? Eseguire un setup è un processo che coinvolge più partecipanti ed è talvolta chiamato _cerimonia_. [^15] Tutti i partecipanti cooperano per creare un "segreto" crittografico, che è alla base della costruzione delle proving key e verification key. Se questo processo viene manipolato, crittograficamente potrebbe essere possibile creare prove false o dichiarare valide prove non corrette. Di conseguenza, si presuppone un certo grado di fiducia: almeno alcuni dei partecipanti devono essere onesti nel processo di setup, da cui deriva il termine "trusted setup".
 
-As a starting point, we are going to run the trusted setup ourselves. Run the following:
+Come punto di partenza, eseguiremo il trusted setup da soli. Esegui il seguente comando:
 
 `just trusted_setup example1`
 
 ![example1 trusted setup](../assets/02_example1_setup2.png 'example1 trusted setup')
 
-You'll be asked to supply some random text or entropy twice. [^16] Once completed you should see "Trusted setup completed." and the location of the keys. The file ending in `.zkey` is our proving key. While going into the details of trusted setups is outside of the scope of this article, there are a few things that are useful to be aware of.
+Ti verrà chiesto di fornire del testo casuale (entropia) per due volte. [^16] Al termine dovresti vedere "Trusted setup completed." e la posizione delle chiavi. Il file con estensione `.zkey` è la nostra proving key. Sebbene approfondire i dettagli dei trusted setup esuli dall'obiettivo di questo articolo, ci sono alcune cose utili da sapere.
 
-First, what is the problem with the above approach? Since we have just one participant, everyone else who is using the cryptographic key material from that setup is trusting that individual and their computer environment. This wouldn't work in a production scenarios where we'd want to maximize the number of participants to make the setup more trustworthy. If we have 100 people who participate, because of how this cryptographic secret is constructed, it is enough if one single individual is honest. [^17]
+Prima di tutto: qual è il problema dell'approccio appena usato? Avendo un solo partecipante, chiunque altro utilizzi il materiale crittografico generato in quel setup si fida di quell'individuo e del suo ambiente informatico. Questo non funzionerebbe in scenari di produzione, dove vorremmo massimizzare il numero di partecipanti per rendere il setup più affidabile. Se partecipano 100 persone, grazie al modo in cui viene costruito questo segreto crittografico, è sufficiente che una singola persona sia onesta. [^17]
 
-It is also worth knowing that different ZKP systems have different properties in terms of security, performance and affordances. While all ZKP systems require some form of setup, not all of them require a trusted setup. Of those that do, some differ in their requirements.
+Vale anche la pena sapere che diversi sistemi di dimostrazione ZKP hanno proprietà diverse in termini di sicurezza, prestazioni e funzionalità. Sebbene tutti i sistemi ZKP richiedano una qualche forma di setup, non tutti richiedono un trusted setup. Tra quelli che lo richiedono, alcuni differiscono nei requisiti.
 
-With Circom we are using the _Groth16 proof system_ which does requires a trusted setup. Specifically, the setup is split into two phases: phase 1 and phase 2. Phase 1 is independent of a circuit and can be used by any ZKP program up to a certain size, whereas phase 2 is _circuit-specific_. When we ran the above command, we performed both phases.
+Con Circom utilizziamo il _sistema di dimostrazione Groth16_, che richiede un trusted setup. In particolare, il setup è suddiviso in due fasi: fase 1 e fase 2. La fase 1 è indipendente dal circuito e può essere utilizzata da qualsiasi programma ZKP fino a una certa dimensione, mentre la fase 2 è _specifica del circuito_. Quando abbiamo eseguito il comando precedente, abbiamo eseguito entrambe le fasi.
 
-You might be wondering, why would you use a trusted setup at all if you can avoid it? A lot of people agree with this view. However, there are still good reasons people use these systems - such as more mature tooling and ecosystem, as well as cheap verification costs. Cheap verification costs is something that is traditionally very important, especially when we are verifying proofs on a public blockchain like Ethereum. Depending on your use case, your choice will likely differ. In a different article we'll look more into trusted setups and their trade-offs, as well as different proof systems.
+Potresti chiederti: perché usare un trusted setup quando si può evitarlo? Molti condividono questa visione. Eppure esistono buone ragioni per cui si ricorre ancora a questi sistemi — ad esempio strumenti e un ecosistema più maturi, nonché costi di verifica ridotti. Questi ultimi sono tradizionalmente molto importanti, specialmente quando si verificano prove su una blockchain pubblica come Ethereum. A seconda del caso d'uso, la scelta sarà probabilmente diversa. In un altro articolo approfondiremo i trusted setup e i loro compromessi, oltre ai diversi sistemi di dimostrazione.
 
-### Generate proof
+### Generare la prova
 
-With the trusted setup completed above, we have a proving key and verification key. We can now generate a proof that we know two secret values whose product is another public number.
+Con il trusted setup completato in precedenza, disponiamo di una proving key e di una verification key. Possiamo ora generare una prova che dimostra di conoscere due valori segreti il cui prodotto è un altro numero pubblico.
 
-Specifically, let's prove that we know that 33 can be constructed from multiplying the numbers 3 and 11. Recall that our private input consists of signals `a` and `b`. We specify this in the `example1/input.json` file as follows:
+In concreto, dimostreremo che 33 può essere ottenuto moltiplicando 3 per 11. Ricorda che i nostri input privati sono i segnali `a` e `b`. Li specifichiamo nel file `example1/input.json` come segue:
 
 ```json
 {
@@ -275,19 +278,19 @@ Specifically, let's prove that we know that 33 can be constructed from multiplyi
 }
 ```
 
-That is, we specify the input as a JSON map, where the key is the signal name and the value is the value we want to assign it. Notice that the value is a string, even though it is conceptually a number. This is a quirk in Circom and its JS API. Due to the nature of ZKPs, we often deal with very large numbers that require the use of _BigInt_. The easiest way to specify such a large number in a JSON file is as a string that will then be converted to a BigInt.
+Cioè, specifichiamo l'input come una mappa JSON, dove la chiave è il nome del segnale e il valore è quello che vogliamo assegnargli. Nota che il valore è una stringa, anche se concettualmente è un numero. Questa è una particolarità di Circom e della sua API JavaScript. Per via della natura delle ZKP, spesso si lavora con numeri molto grandi che richiedono l'uso di BigInt. Il modo più semplice per specificare un numero così grande in un file JSON è come stringa, che verrà poi convertita in BigInt.
 
-We can create a proof using our compiled circuit (in WASM form), our proving key and the input by running the following:
+Possiamo creare una prova usando il nostro circuito compilato (in forma WASM), la nostra proving key e l'input, eseguendo:
 
 `just generate_proof example1`
 
 ![example1 generate proof](../assets/02_example1_generate_proof.png 'example1 generate proof')
 
-Under the hood, this command takes the input and generates a _witness_ for our specific circuit. [^18] Normally, by witness, we simply mean the private input we use to generate a proof. In the context of Circom, a witness is the complete assignment of all signals, both private and public, in a form that the prover software can process. This form is an internal representation in a binary format. [^19]
+Sotto il cofano, questo comando prende l'input e genera un _witness_ per il nostro specifico circuito. [^18] Normalmente, con witness intendiamo semplicemente l'input privato che usiamo per generare una prova. Nel contesto di Circom, il witness è l'assegnazione completa di tutti i segnali, sia privati che pubblici, in una forma che il software prover può elaborare. Questa forma è una rappresentazione interna in formato binario. [^19]
 
-With this generated witness, we can create a proof using `snarkjs`. Finally, we end up with a proof and some public output.
+Con questo witness generato, possiamo creare una prova usando `snarkjs`. Al termine, otteniamo una prova e un output pubblico.
 
-The proof looks something like this:
+La prova ha un aspetto simile a questo:
 
 ```json
 {
@@ -303,80 +306,80 @@ The proof looks something like this:
 }
 ```
 
-This specifies the proof in the form of some mathematical objects (three elliptic curve elements), `pi_a`, `pi_b`, and `pi_c`. [^20] It also includes some metadata about the protocol (`groth16`) and the _curve_ (`bn128`, a mathematical implementation detail we'll ignore for now) used. This allows the verifier to know what to do with this proof to verify it correctly.
+Questa specifica la prova sotto forma di oggetti matematici (tre elementi di curve ellittiche), `pi_a`, `pi_b` e `pi_c`. [^20] Include anche alcuni metadati sul protocollo (`groth16`) e sulla _curva_ (`bn128`, un dettaglio di implementazione matematica che ignoreremo per ora). Questo permette al verifier di sapere come trattare questa prova per verificarla correttamente.
 
-Notice how short the proof is; regardless of how complex our special program is it'll only be this size. This showcases the _succinctness_ property of ZKPs we talked about in our [_friendly introduction_](https://zkintro.com/articles/friendly-introduction-to-zero-knowledge#compression).
+Nota quanto sia breve la prova; indipendentemente da quanto sia complesso il nostro programma speciale, la prova avrà sempre e solo questa dimensione. Questo illustra la proprietà di _sinteticità_ delle ZKP di cui abbiamo parlato nella nostra [_introduzione amichevole_](https://zkintro.com/it/articles/friendly-introduction-to-zero-knowledge#compression).
 
-The command above also outputs our _public output_:
+Il comando precedente produce anche il nostro _output pubblico_:
 
 ```json
 ["33"]
 ```
 
-This is a list of all the public outputs corresponding to our witness and circuit. In this case, there's a single public output that corresponds to`c`: 33. [^21]
+Questo è un elenco di tutti gli output pubblici corrispondenti al nostro witness e circuito. In questo caso, c'è un unico output pubblico che corrisponde a `c`: 33. [^21]
 
-What have we proven? That we know two secret values, `a` and `b`, whose product is 33. This showcases the _privacy_ property we talked about in the previous article.
+Cosa abbiamo dimostrato? Che conosciamo due valori segreti, `a` e `b`, il cui prodotto è 33. Questo illustra la proprietà di _privacy_ di cui abbiamo parlato nell'articolo precedente.
 
-Note that the proof isn't useful in isolation, it requires the public output that comes with it.
+Nota che la prova da sola non è utile: richiede l'output pubblico che la accompagna.
 
-### Verify proof
+### Verificare la prova
 
-Next up, let's verify this proof. Run:
+Passiamo ora a verificare questa prova. Esegui:
 
 `just verify_proof example1`
 
 ![example1 verify proof](../assets/02_example1_verify_proof.png 'example1 verify proof')
 
-This takes the verification key, the public output, and the proof. With this we are able to verify the proof. It should print "Proof verified". Notice how the verifier is never exposed to any of the private inputs.
+Questo comando prende la verification key, l'output pubblico e la prova. Con questi elementi siamo in grado di verificare la prova. Dovrebbe stampare "Proof verified". Nota come il verifier non abbia mai accesso agli input privati.
 
-What happens if we change the output? Open `example1/target/public.json` and change the 33 to 34, then run the command above again.
+Cosa succede se modifichiamo l'output? Apri `example1/target/public.json` e cambia il 33 in 34, poi riesegui il comando precedente.
 
-You'll notice that the proof is not verified anymore. This is because our proof does not prove that we have two numbers whose product is 34.
+Noterai che la prova non viene più verificata. Questo perché la nostra prova non dimostra che abbiamo due numeri il cui prodotto è 34.
 
-Congratulations, you've now written your first ZKP program, performed a trusted setup, generated a proof and finally verified it!
+Complimenti, hai scritto il tuo primo programma ZKP, eseguito un trusted setup, generato una prova e infine verificata!
 
-### Exercises
+### Esercizi
 
-1. What are the two key properties of ZKPs and what do they mean?
-2. What is the role of a prover and what input does she need? What about a verifier?
-3. Explain what the line `c <== a * b;` does.
-4. Why do we need to perform a trusted setup? How do we use its artifacts?
-5. Code: Finish `example1` until you generated and verified a proof.
+1. Quali sono le due proprietà fondamentali delle ZKP e cosa significano?
+2. Qual è il ruolo del prover e di quale input ha bisogno? E il verifier?
+3. Spiega cosa fa la riga `c <== a * b;`.
+4. Perché dobbiamo eseguire un trusted setup? Come usiamo i suoi artefatti?
+5. Codice: Completa `example1` fino a generare e verificare una prova.
 
-## Second iteration
+## Seconda iterazione
 
-With the above circuit, we are proving that we know the product of two (secret) numbers. This is closely related to the problem of _prime factorization_, which is the basis of a lot of cryptography. [^22] The idea is that if you have a very large number, it is hard to find two prime numbers whose product is that large number. On the flip side, it is very easy to check if the product of two numbers is equal to another number [^23].
+Con il circuito precedente stiamo dimostrando di conoscere il prodotto di due numeri (segreti). Questo problema è strettamente legato alla _fattorizzazione in numeri primi_, che è alla base di molta parte della crittografia. [^22] L'idea è che, dato un numero molto grande, sia difficile trovare due numeri primi il cui prodotto sia quel numero. D'altra parte, verificare se il prodotto di due numeri è uguale a un altro numero è estremamente semplice. [^23]
 
-However, there is a big problem with our circuit. Can you see it?
+Tuttavia, c'è un problema importante nel nostro circuito. Riesci a individuarlo?
 
-We can easily change our input to be "1" and "33". That is, a number `c` is always the product of 1 and `c`. That's not very impressive at all is it?
+Potremmo facilmente cambiare il nostro input in "1" e "33". In altre parole, un numero `c` è sempre il prodotto di 1 e `c`. Non è certo qualcosa di particolarmente notevole, vero?
 
-What we want to do is to add another _constraint_, that neither `a` or `b` can be equal to 1. That way, we are forced to do proper integer factorization.
+Quello che vogliamo fare è aggiungere un altro _vincolo_ (constraint): né `a` né `b` possono essere uguali a 1. In questo modo siamo costretti a fare una vera fattorizzazione intera.
 
-How can we add this constraint and what changes do we need to make?
+Come possiamo aggiungere questo vincolo e quali modifiche dobbiamo apportare?
 
-### Updating our circuit
+### Aggiornare il nostro circuito
 
-We are going to work with the `example2` folder for these changes. Unfortunately, we can't just write `a !== 1`, because this isn't a valid constraint. [^24] It isn't made up of only constants, addition, multiplication and equality checks. How do we express that "something is not"?
+Lavoreremo con la cartella `example2` per queste modifiche. Purtroppo non possiamo semplicemente scrivere `a !== 1`, perché non si tratta di un vincolo valido. [^24] Non è composto esclusivamente da costanti, addizioni, moltiplicazioni e verifiche di uguaglianza. Come esprimiamo allora il concetto di "qualcosa che non è"?
 
-This is not immediately intuitive, and this type of problem is where a lot of the art of writing circuits come into play. Developing this skill takes time and is outside of the scope of this initial tutorial; fortunately there are many good resources for this. [^25]
+Questo non è immediatamente intuitivo, ed è in questo tipo di problema che emerge gran parte dell'arte di scrivere circuiti. Sviluppare questa competenza richiede tempo e va oltre l'obiettivo di questo tutorial iniziale; fortunatamente esistono molte buone risorse a riguardo. [^25]
 
-There are some common idioms though. The basic idea is to use a `IsZero()` template that checks if an expression is equal to zero or not. It outputs 1 for true, and 0 for false.
+Esistono però alcuni costrutti tipici ricorrenti. L'idea di fondo è usare un template `IsZero()` che verifica se un'espressione è uguale a zero oppure no. Restituisce 1 se vera, 0 se falsa.
 
-It is often helpful to use a truth table [^26] to show possible values. Here's the truth table for `IsZero()`:
+Spesso è utile ricorrere a una tabella di verità [^26] per mostrare i possibili valori. Ecco la tabella di verità per `IsZero()`:
 
 | in  | out |
 | --- | --- |
 | 0   | 1   |
 | n   | 0   |
 
-This is such a useful building block that it is included in Circom's library, `circomlib`. In `circomlib` there are also many other useful components. [^27]
+Si tratta di un elemento base così utile da essere incluso nella libreria di Circom, `circomlib`. In `circomlib` sono presenti anche molti altri componenti utili. [^27]
 
-We can include this by creating an `npm` project (JavaScript) and adding it as a dependency. In the `example2` folder we have already done this for you. To import the relevant module, we add the following line to the top of `example2.circom`:
+Possiamo includerlo creando un progetto `npm` (JavaScript) e aggiungendolo come dipendenza. Nella cartella `example2` lo abbiamo già fatto per te. Per importare il modulo rilevante, aggiungiamo la seguente riga all'inizio di `example2.circom`:
 
 `include "circomlib/circuits/comparators.circom";`
 
-Using `IsZero()`, we can check if either a or b is equal to 1. Modify the `example2.circom` file to contain the following lines:
+Usando `IsZero()`, possiamo verificare se `a` o `b` è uguale a 1. Modifica il file `example2.circom` in modo che contenga le seguenti righe:
 
 ```javascript
 component isZeroCheck = IsZero();
@@ -384,25 +387,25 @@ isZeroCheck.in <== (a - 1) * (b - 1);
 isZeroCheck.out === 0;
 ```
 
-In the above code snippet, we create a new component `isZeroCheck`, instantiating the `IsZero()` template. If either a or b is equal to 1, `isZeroCheck.in` will be assigned 0, and `isZeroCheck.out` will be 1. Since we have a constraint that says `isZeroCheck.out === 0`, this constraint will fail. This means that we can no longer provide inputs where either a or b is equal to 1.
+Nel frammento di codice qui sopra, creiamo un nuovo component `isZeroCheck`, istanziando il template `IsZero()`. Se `a` o `b` è uguale a 1, a `isZeroCheck.in` verrà assegnato 0 e `isZeroCheck.out` varrà 1. Poiché abbiamo un vincolo che afferma `isZeroCheck.out === 0`, questo vincolo fallirà. Ciò significa che non sarà più possibile fornire input in cui `a` o `b` sia uguale a 1.
 
-I encourage you to convince yourself, either in your head or using pen and paper (perhaps using a truth table?), that this is true. If you are up for a challenge, you can try to figure out how `IsZero()` is implemented. it is only a few lines of code. You can see the code in `circomlib`'s `comparators.circom` file. [^28]
+Ti invito a convincerti, mentalmente o con carta e penna (magari usando una tabella di verità?), che sia effettivamente così. Se vuoi una sfida, puoi provare a capire come è implementato `IsZero()`: è composto da poche righe di codice. Puoi vedere il codice nel file `comparators.circom` di `circomlib`. [^28]
 
-For your reference, the final file can be found in `example2-solution.circom`. With the changes above, we can install the npm `circomlib` dependency and build our circuit with:
+Per riferimento, il file finale è disponibile in `example2-solution.circom`. Con le modifiche di cui sopra, possiamo installare la dipendenza npm `circomlib` e compilare il circuito con:
 
 `just build example2`
 
-### Re-running our trusted setup
+### Ripetere il trusted setup
 
-With Circom and Groth16, any time we change our circuit we have to re-run our trusted setup. This means you better be sure your circuit is solid before you release it. Especially if you are running a proper ceremony involving many participants.
+Con Circom e Groth16, ogni volta che modifichiamo il nostro circuito dobbiamo ripetere il trusted setup. Questo significa che faresti meglio ad accertarti che il circuito sia solido prima di rilasciarlo — soprattutto se si organizza una cerimonia vera e propria con molti partecipanti.
 
-More specifically, we only have to run the circuit-specific (phase 2) trusted setup again. This is because phase 1 is generic for _any_ Groth16 circuit written in Circom, up to a certain size. When we performed the trusted setup above, we did both phase 1 and phase 2, but omitted the details of phase 1 for simplicity. Here are some more details on phase 1 to give a more complete picture.
+Più precisamente, dobbiamo ripetere solo il trusted setup specifico per il circuito (fase 2). Questo perché la fase 1 è generica per _qualsiasi_ circuito Groth16 scritto in Circom, fino a una certa dimensione. Quando abbiamo eseguito il trusted setup in precedenza, abbiamo svolto sia la fase 1 sia la fase 2, omettendo i dettagli della fase 1 per semplicità. Ecco alcune informazioni aggiuntive sulla fase 1 per dare un quadro più completo.
 
-![Trusted setup (both phases)](../assets/02_example2_setup_both.png 'Trusted setup (both phases)')
+![Trusted setup (entrambe le fasi)](../assets/02_example2_setup_both.png 'Trusted setup (entrambe le fasi)')
 
-The result of the phase 1 trusted setup is kept in a `.ptau` file, where ptau stands for powers of tau. [^29] Mathematically, this file contains powers of some random secrets. This is what allows us to "accommodate" some number of number of constraints. We don't need to understand how this works mathematically, but there are two key facts that are useful to know: (a) `.ptau` is circuit-independent (b) the size of it indicates its capacity. The "capacity" of a given ptau is `2^n - 1` constraints, where `n` is some number. For example, `pot12.ptau` indicates that the number of constraints it can accommodate is `2^12 - 1`, or slighty over 4000 constraints.
+Il risultato del trusted setup di fase 1 è contenuto in un file `.ptau`, dove ptau sta per _powers of tau_ (potenze di tau). [^29] Dal punto di vista matematico, questo file contiene potenze di alcuni segreti casuali, ed è ciò che ci permette di "accomodare" un certo numero di vincoli. Non è necessario capire come funziona matematicamente, ma ci sono due fatti chiave utili da sapere: (a) il file `.ptau` è indipendente dal circuito; (b) la sua dimensione ne indica la capacità. La "capacità" di un dato file ptau è di `2^n - 1` vincoli, dove `n` è un certo numero. Ad esempio, `pot12.ptau` indica che il numero di vincoli che può accogliere è `2^12 - 1`, ovvero poco più di 4000 vincoli.
 
-Since we don't want to re-run our phase 1 again, we just want to run phase 2. This will use the previously generated `pot12.ptau` (stored in the `ptau` directory) as input. We can run our phase 2 trusted setup with:
+Poiché non vogliamo ripetere la fase 1, eseguiamo solo la fase 2. Questa utilizzerà come input il file `pot12.ptau` precedentemente generato (archiviato nella cartella `ptau`). Possiamo eseguire il trusted setup di fase 2 con:
 
 ```
 just trusted_setup_phase2 example2
@@ -410,146 +413,146 @@ just trusted_setup_phase2 example2
 
 ![example2 trusted setup](../assets/02_example2_setup2.png 'example2 trusted setup')
 
-### Testing our changes
+### Testare le nostre modifiche
 
-With this, we can run:
+A questo punto possiamo eseguire:
 
 ```
 just generate_proof example2
 just verify_proof example2
 ```
 
-It still generates and verifies the proof as expected.
+La prova viene ancora generata e verificata come previsto.
 
-If we change the `example2/input.json` inputs to say `1` and `33` and try to run above we will see an assert error. That is, Circom won't even let us generate a proof, because the input is breaking our constraints.
+Se modifichiamo gli input in `example2/input.json` inserendo `1` e `33` e proviamo a eseguire i comandi precedenti, otterremo un errore di asserzione. In altre parole, Circom non ci permetterà nemmeno di generare una prova, perché l'input viola i nostri vincoli.
 
-### Complete flow diagram
+### Diagramma di flusso completo
 
-Now that we have gone through the entire flow twice, let's take a step back and see how all of the pieces fit together.
+Ora che abbiamo percorso l'intero flusso due volte, facciamo un passo indietro e vediamo come tutti i pezzi si incastrano tra loro.
 
-![example2 complete flow](../assets/02_example2_complete_flow.png 'example2 complete flow')
+![example2 flusso completo](../assets/02_example2_complete_flow.png 'example2 flusso completo')
 
-Hopefully things are starting to make some sense. With that, let's kick it up a notch and make our circuit more useful.
+A questo punto le cose dovrebbero cominciare a essere più chiare. Con questo, alziamo il livello e rendiamo il nostro circuito più utile.
 
-### Exercises
+### Esercizi
 
-6. Why do we have to run phase 2 but not phase 1 of our trusted setup for `example2`?
-7. What was the main problem with the previous example and how did we fix it?
-8. Code: Finish `example2` until you failed to generate a proof.
+6. Perché dobbiamo eseguire la fase 2 ma non la fase 1 del trusted setup per `example2`?
+7. Qual era il problema principale dell'esempio precedente e come lo abbiamo risolto?
+8. Codice: Completa `example2` fino al punto in cui non riesci più a generare una prova.
 
-## Third iteration
+## Terza iterazione
 
-With the above circuit we have proven that we know the product of two secret values. That on its own is not very useful. Something that is useful in the real world is a _digital signature scheme_. With it, you can prove to someone else that you wrote a specific message. How would we go about implementing this using ZKPs? To get there, we must first cover some basic concepts.
+Con il circuito precedente abbiamo dimostrato di conoscere il prodotto di due valori segreti. Di per sé, questo non è molto utile. Qualcosa che invece ha un'applicazione concreta nel mondo reale è uno _schema di firma digitale_. Con esso, puoi dimostrare a qualcun altro di aver scritto un messaggio specifico. Come potremmo implementarlo usando le ZKP? Per arrivarci, dobbiamo prima introdurre alcuni concetti di base.
 
-Now would be a good time for a short break to get a fresh cup of your favorite beverage.
+Questo è un buon momento per una breve pausa e una tazza della tua bevanda preferita.
 
-### Digital signatures
+### Firme digitali
 
-Digital signatures exists already and are everywhere in our digital age. The modern Internet wouldn't function without them. Usually, these are implemented using _public-key cryptography_. In public-key cryptography you have a private key and a public key. The private key is for your eyes only, and the public key is shared publicly, representing your identity.
+Le firme digitali esistono già e sono ovunque nell'era digitale. L'Internet moderno non potrebbe funzionare senza di esse. Di norma, vengono implementate usando la _crittografia a chiave pubblica_. In questo sistema si dispone di una chiave privata e di una chiave pubblica. La chiave privata è riservata esclusivamente a te, mentre la chiave pubblica è condivisa apertamente e rappresenta la tua identità.
 
-A digital signature scheme consist of the following parts:
+Uno schema di firma digitale si compone delle seguenti parti:
 
-- **Key generation**: Generate a private key and a corresponding public key
-- **Signing**: Create a signature using the private key and the message
-- **Signature verification**: Verify message was signed by corresponding public key
+- **Generazione delle chiavi**: generare una chiave privata e la corrispondente chiave pubblica
+- **Firma**: creare una firma utilizzando la chiave privata e il messaggio
+- **Verifica della firma**: verificare che il messaggio sia stato firmato dalla chiave pubblica corrispondente
 
-While the specifics look different, the program we wrote and the key generation algorithm above share a common element: they both use a _one-way function_, and more specifically a _trapdoor function_. A trapdoor is something that is easy to fall into and hard to climb out of (unless you can find a hidden ladder). [^30]
+Pur differendo nei dettagli, il programma che abbiamo scritto e l'algoritmo di generazione delle chiavi descritto sopra condividono un elemento comune: entrambi utilizzano una _funzione unidirezionale_, e più precisamente una _trapdoor function_ (funzione botola). Una botola è qualcosa in cui è facile cadere ma da cui è difficile uscire (a meno che non si trovi una scala nascosta). [^30]
 
 ![example3 trapdoor](../assets/02_example3_trapdoor.png 'example3 trapdoor')
 
-For public-key cryptography, it is easy to construct the public key from the private key, but very hard to go the other way. The same is true for our previous program. If the two secret numbers are very large prime numbers, it is very hard to turn that product back into the original values. Modern public-key cryptography often uses _elliptic curve cryptography_ under the hood.
+Nella crittografia a chiave pubblica, è semplice ricavare la chiave pubblica da quella privata, ma è molto difficile fare il percorso inverso. Lo stesso vale per il programma che abbiamo scritto in precedenza: se i due numeri segreti sono numeri primi molto grandi, è estremamente difficile risalire ai valori originali a partire dal loro prodotto. La crittografia a chiave pubblica moderna spesso utilizza la _crittografia su curve ellittiche_ come meccanismo sottostante.
 
-Traditionally, creating cryptographic protocols like these digital signature schemes is a lot of hard work and requires coming up with a specific protocol that involves using some clever math. We don't want to do that. Instead, we want to write a program using ZKPs that achieves the same result.
+Tradizionalmente, creare protocolli crittografici come questi schemi di firma digitale richiede un notevole sforzo e implica la progettazione di un protocollo specifico basato su matematica ingegnosa. Non è quello che vogliamo fare. Vogliamo invece scrivere un programma usando le ZKP che ottenga lo stesso risultato.
 
-Instead of this: [^31]
+Invece di questo: [^31]
 
 ![Signature verification](../assets/02_example3_sigverify.png 'Signature verification')
 
-We just want to write a program, generate a proof of what we want, and then verify this proof.
+Vogliamo semplicemente scrivere un programma, generare una prova di ciò che intendiamo dimostrare, e poi verificare questa prova.
 
-### Hash functions and commitments
+### Funzioni di hash e commitment
 
-Instead of using elliptic curve cryptography, we are going to use two much simpler tools: _hash functions_ and _commitments_.
+Invece di ricorrere alla crittografia su curve ellittiche, utilizzeremo due strumenti molto più semplici: le _funzioni di hash_ e i _commitment_ (impegni crittografici).
 
-A hash function is also a one-way function. For example, on the command line we can use the SHA-256 hash function like this:
+Una funzione di hash è anch'essa una funzione unidirezionale. Ad esempio, dalla riga di comando possiamo usare la funzione di hash SHA-256 in questo modo:
 
 ```shell
 echo -n "foo" | shasum -a 256
 ```
 
-To produce the hash of "foo": `0beec7[...]a8a33` (abbreviated). [^32]
+Per produrre l'hash di "foo": `0beec7[...]a8a33` (abbreviato). [^32]
 
-On its own, a hash function is not a trapdoor function. There's no special knowledge that allows us to retrieve the original value. It acts more as a meat grinder and less as a trapdoor with a hidden ladder.
+Di per sé, una funzione di hash non è una trapdoor function. Non esiste alcuna conoscenza speciale che permetta di risalire al valore originale. Si comporta più come un tritacarne che come una botola con una scala nascosta.
 
-What about commitments? A _commitment_ is simply a way to commit ("to promise") to a secret value so we can't change our mind about it later. In our case, we will use a commitment to generate the equivalent of a public key using some secret value. We can do this using a hash function.
+E i commitment? Un _commitment_ è semplicemente un modo per impegnarsi ("promettere") riguardo a un valore segreto, in modo da non poterlo cambiare in seguito. Nel nostro caso, utilizzeremo un commitment per generare l'equivalente di una chiave pubblica a partire da un valore segreto. Possiamo farlo usando una funzione di hash.
 
-Commitment schemes are a very common cryptographic primitive. [^33] They allow us to:
+Gli schemi di commitment sono una primitiva crittografica molto comune. [^33] Ci consentono di:
 
-- **commit**: Commit to a specific value while keeping it hidden
-- **reveal**: Reveal this value so it can be verified to be correct
+- **commit**: impegnarsi su un valore specifico mantenendolo nascosto
+- **reveal**: rivelare quel valore in modo che possa essere verificato
 
-This gives us two key properties:
+Questo ci offre due proprietà fondamentali:
 
-- **hiding**: the value stays hidden
-- **binding**: you can't change your mind about the value
+- **hiding** (occultamento): il valore rimane nascosto
+- **binding** (vincolante): non è possibile cambiare idea sul valore
 
-One way to think about a commitment is to imagine giving a lock box to a friend. You can't change the contents of the box after the fact, but your friend can't look inside it. Only when you give them the key can they open it.
+Un modo per immaginare un commitment è pensare di dare a un amico una cassetta chiusa a lucchetto. Non puoi modificare il contenuto della cassetta una volta chiusa, ma il tuo amico non può guardare dentro. Solo quando gli consegni la chiave potrà aprirla.
 
 ![example3 lockbox](../assets/02_example3_lockbox.png 'example3 lockbox')
 
-Going back to our digital signature scheme, we have:
+Tornando al nostro schema di firma digitale, abbiamo:
 
-- **Key generation**: Create some secret string and hash it to create a commitment
-- **Signing**: Create a signature by hashing the secret together with the message
-- **Verification**: Verify proof using commitment, message and signature (public output)
+- **Generazione delle chiavi**: creare una stringa segreta e applicarle una funzione di hash per ottenere un commitment
+- **Firma**: creare una firma applicando una funzione di hash al segreto insieme al messaggio
+- **Verifica**: verificare la prova usando il commitment, il messaggio e la firma (output pubblico)
 
-In pseudo-code this is what we want to do in our circuit:
+In pseudo-codice, ecco cosa vogliamo fare nel nostro circuito:
 
 ```python
 commitment = hash(some_secret)
 signature = hash(some_secret, message)
 ```
 
-At this point you probably have some questions. Let's address a few likely questions you have in your mind.
+A questo punto probabilmente avrai qualche domanda. Proviamo a rispondere alle più probabili.
 
-First of all, why does this work and why do we need a ZKP for this? When someone is verifying the proof, they only have access to the commitment, message, and signature. There's no direct way to verify that the commitment corresponds to the secret, without revealing the secret. In this case, we are just "revealing" the secret when generating our proof, so our secret stays safe.
+Prima di tutto, perché funziona e perché abbiamo bisogno di una ZKP per questo? Quando qualcuno verifica la prova, ha accesso solo al commitment, al messaggio e alla firma. Non esiste un modo diretto per verificare che il commitment corrisponda al segreto senza rivelare il segreto stesso. In questo caso, "riveliamo" il segreto solo al momento della generazione della prova, così il segreto resta al sicuro.
 
-Second, why use these hash functions and commitments instead of public key cryptography inside the ZKP? You absolutely could do public key cryptography inside a ZKP, and there are valid reasons to do so. It is a lot more costly to implement in terms of constraints than the above. This makes it a lot slower than the above, simpler scheme. As we'll see in the next section, the choice of hash function turns out to very important.
+In secondo luogo, perché usare queste funzioni di hash e commitment invece della crittografia a chiave pubblica all'interno della ZKP? Si potrebbe assolutamente fare crittografia a chiave pubblica all'interno di una ZKP, e ci sono ragioni valide per farlo. Tuttavia, è molto più costosa in termini di vincoli rispetto all'approccio descritto sopra, il che la rende molto più lenta rispetto a questo schema più semplice. Come vedremo nella sezione successiva, la scelta della funzione di hash si rivela molto importante.
 
-Finally, why use a ZKP at all when we already have public key cryptography? In this simple example, there's no need for a ZKP. However, it acts as a building block for more interesting applications, such as the group signature example mentioned in the beginning of this article. After all, we want to _program cryptography_.
+Infine, perché usare una ZKP se abbiamo già la crittografia a chiave pubblica? In questo semplice esempio, una ZKP non è strettamente necessaria. Tuttavia, costituisce un elemento fondamentale per applicazioni più interessanti, come l'esempio della firma di gruppo menzionato all'inizio di questo articolo. Dopotutto, il nostro obiettivo è _programmare la crittografia_.
 
-That was a lot! Luckily, we are over the hump now. Let's get coding. Don't worry if not all of the above made complete sense to you at first. It takes a while to get used to this type of reasoning.
+È stato molto! Per fortuna, abbiamo superato l'ostacolo principale. Passiamo al codice. Non preoccuparti se non tutto quanto detto sopra ti è risultato subito chiaro: ci vuole un po' di tempo per abituarsi a questo tipo di ragionamento.
 
-### Back to the code
+### Torniamo al codice
 
-We are going to work from the `example3` directory.
+Lavoreremo dalla directory `example3`.
 
-To implement digital signatures, the first thing we need to do is to generate our keys. These correspond to the private and public key in public-key cryptography. Because the keys correspond to an identity (you, the prover), we will call these `identity_secret` and `identity_commitment`, respectively. Together they form an identity pair.
+Per implementare le firme digitali, la prima cosa da fare è generare le nostre chiavi. Queste corrispondono alla chiave privata e alla chiave pubblica della crittografia a chiave pubblica. Poiché le chiavi corrispondono a un'identità (quella del prover), le chiameremo rispettivamente `identity_secret` e `identity_commitment`. Insieme formano una coppia di identità.
 
-These will be used as input to the circuit, together with the message we are signing. As public output, we'll have the signature, commitment and message. This will allow someone to verify that the signature is indeed correct.
+Queste verranno usate come input del circuito, insieme al messaggio che stiamo firmando. Come output pubblico avremo la firma, il commitment e il messaggio. Questo permetterà a chiunque di verificare che la firma sia effettivamente corretta.
 
-Because we need the identity pair as input to the circuit, we generate these separately:
+Poiché abbiamo bisogno della coppia di identità come input per il circuito, la generiamo separatamente:
 
 `just generate_identity`
 
-This produces something like this:
+Il risultato sarà simile a questo:
 
 ```shell
 identity_secret: 43047[...]2270
 identity_commitment: 21618[...]0684
 ```
 
-In order to keep the secret secure, we use a big and random number. Unlike what we saw before, we are not using a hash function such as SHA-256 to create the commitment. Instead, we are using what is called a _ZK-Friendly hash function_. That is a special hash function that is optimzed for being used in ZKPs. This matters a lot in terms of performance when you do a lot hashing. The ZK friendly hash function we are using is called the _Poseidon hash function_. [^34]
+Per mantenere il segreto al sicuro, utilizziamo un numero grande e casuale. A differenza di quanto visto in precedenza, non stiamo usando una funzione di hash come SHA-256 per creare il commitment. Utilizziamo invece quella che viene chiamata una _funzione di hash ZK-friendly_. Si tratta di una funzione di hash speciale ottimizzata per l'uso nelle ZKP. Questo incide notevolmente sulle prestazioni quando si eseguono molte operazioni di hashing. La funzione di hash ZK-friendly che utilizziamo si chiama _funzione di hash Poseidon_. [^34]
 
-Under the hood, this is using the `circomlibjs` library to wrap `circomlib`. This is a JavaScript library that allows us to use Circom circuits. This ensures our `identity_commitment` is generated in exactly the same way in JavaScript/on the command line as in our circuit. If you want to read the script source code it is available in `example3/generate_identity.js`.
+Internamente, questa operazione usa la libreria `circomlibjs` come _wrapper_ (livello di interfaccia) di `circomlib`. Si tratta di una libreria JavaScript che ci permette di usare i circuiti Circom. Questo garantisce che il nostro `identity_commitment` venga generato esattamente nello stesso modo in JavaScript/dalla riga di comando e nel nostro circuito. Se vuoi leggere il codice sorgente dello script, lo trovi in `example3/generate_identity.js`.
 
-Just like we did before with `IsZero`, we need to include the Poseidon template. We do this with the following include:
+Così come abbiamo fatto con `IsZero`, dobbiamo includere il template Poseidon. Lo facciamo con il seguente include:
 
 ```
 include "circomlib/circuits/poseidon.circom";
 ```
 
-The Poseidon hash template is used as follows:
+Il template per la funzione di hash Poseidon si usa nel modo seguente:
 
 ```javascript
 component hasher = Poseidon(2);
@@ -558,34 +561,34 @@ hasher.inputs[1] = bar;
 quux <== hasher.out
 ```
 
-We specify that the `hasher` component expects two arguments, specified in the `.inputs[]` array. It then assigns the output signal to `.out`. In this example, it takes `foo` and `bar` as inputs, hashes them together and the result is `quux`. [^35]
+Specifichiamo che il component `hasher` si aspetta due argomenti, indicati nell'array `.inputs[]`. Il risultato viene poi assegnato al segnale di output `.out`. In questo esempio, il component prende `foo` e `bar` come input, li combina tramite hash e il risultato è `quux`. [^35]
 
-Finally, we introduce a new piece of syntax:
+Infine, introduciamo un nuovo elemento di sintassi:
 
 ```javascript
 component main {public [identity_commitment, message]} = SignMessage();
 ```
 
-By default, all inputs to our circuit are private. With this, we explicitly mark `identity_commitment` and `message` as public. This means they'll be part of the public output.
+Per impostazione predefinita, tutti gli input del nostro circuito sono privati. Con questa istruzione, contrassegniamo esplicitamente `identity_commitment` e `message` come pubblici. Ciò significa che faranno parte dell'output pubblico.
 
-With this information you should have enough to complete the `example3.circom` circuit. If you are still stuck, you can refer to `example3-solution.circom` for the full code.
+Con queste informazioni dovresti avere tutto il necessario per completare il circuito `example3.circom`. Se sei ancora bloccato, puoi consultare `example3-solution.circom` per il codice completo.
 
-Like before, we have to build the circuit and run phase 2 of the trusted setup:
+Come in precedenza, dobbiamo compilare il circuito ed eseguire la fase 2 del trusted setup:
 
 ```shell
 just build example3
 just trusted_setup_phase2 example3
 ```
 
-When building the circuit, you might notice how the number of constraints went up quite a lot compared to `example2`. This is primarily due to the use of two Poseidon hashes. [^36]
+Durante la compilazione del circuito, noterai come il numero di vincoli sia aumentato notevolmente rispetto a `example2`. Questo è dovuto principalmente all'uso di due funzioni di hash Poseidon. [^36]
 
-### Testing our circuit
+### Testare il nostro circuito
 
-For reference, here's an illustration of our completed circuit:
+Per riferimento, ecco un'illustrazione del circuito completato:
 
 ![example3 circuit](../assets/02_example3_circuit.png 'example3 circuit')
 
-We can now generate a proof. We have the following input in `example3/input.json`:
+Possiamo ora generare una prova. Abbiamo il seguente input in `example3/input.json`:
 
 ```json
 {
@@ -595,143 +598,143 @@ We can now generate a proof. We have the following input in `example3/input.json
 }
 ```
 
-Feel free to change the identity pair to the one you generated yourself with `just generate_identity`. After all, you want to keep the identity secret to yourself!
+Puoi tranquillamente sostituire la coppia di identità con quella che hai generato tu stesso con `just generate_identity`. Dopotutto, vuoi tenere l'identity secret per te!
 
-You might notice how the message is just a number quoted as a string (`"42"`). Unfortunately, because of how constraints work mathematically (using linear algebra and _arithmetic circuits_) we can only use numbers and not strings. The only operations that are supported inside of circuits are basic arithmetic ones like addition and multiplication. [^37]
+Potresti notare che il messaggio è semplicemente un numero racchiuso tra virgolette come stringa (`"42"`). Purtroppo, a causa di come funzionano matematicamente i vincoli (usando l'algebra lineare e i _circuiti aritmetici_) possiamo usare solo numeri e non stringhe. Le uniche operazioni supportate all'interno dei circuiti sono quelle aritmetiche di base, come addizione e moltiplicazione. [^37]
 
-We can now generate and verify a proof:
+Possiamo ora generare e verificare una prova:
 
 ```
 just generate_proof example3
 just verify_proof example3
 ```
 
-As before, the proof stays the same size, even though we are doing a lot more things. The public output found in `example3/target/public.json` is:
+Come in precedenza, la prova mantiene la stessa dimensione, anche se stiamo facendo molte più operazioni. L'output pubblico che si trova in `example3/target/public.json` è:
 
 ```json
 ["48968[...]5499", "48269[...]7915", "42"]
 ```
 
-This corresponds to the signature, commitment, and message respectively.
+Corrisponde rispettivamente alla firma, al commitment e al messaggio.
 
-Let's look at how things can go wrong if we are not careful. [^38]
+Vediamo ora cosa può andare storto se non siamo attenti. [^38]
 
-First, what happens if we change the identity commitment to something random in the `input.json`? You'll notice we can't generate proofs anymore. This is because we are also checking the identity commitment inside the circuit itself. It is critical that this relationship between the identity secret and commitment is maintained.
+Prima di tutto, cosa succede se cambiamo l'identity commitment con uno casuale nell'`input.json`? Noterai che non saremo più in grado di generare prove. Questo perché nel circuito stesso stiamo verificando anche la relazione tra l'identity commitment e l'identity secret. È fondamentale che questa relazione venga mantenuta.
 
-Second, what happens if we don't include the message in the output? We do get a proof and it gets verified. But the message could be _anything_, so it doesn't actually prove that the you sent a specific message. Similary, what if we don't include the identity commitment in the public output? This means that the identity commitment could be anything, so we don't actually know _who_ signed the message.
+In secondo luogo, cosa succede se non includiamo il messaggio nell'output? Otterremo comunque una prova, e questa verrà verificata. Ma il messaggio potrebbe essere _qualsiasi cosa_, quindi non dimostra davvero che tu abbia inviato un messaggio specifico. Analogamente, cosa succederebbe se non includessimo l'identity commitment nell'output pubblico? Significherebbe che l'identity commitment potrebbe essere qualunque cosa, e quindi non sapremmo _chi_ ha firmato il messaggio.
 
-As a thought exercise, convince yourself (or try out) what could go wrong if we omit either of these two key constraints:
+Come esercizio di riflessione, convinciti (o verifica) di cosa potrebbe andare storto se omettessimo uno di questi due vincoli fondamentali:
 
 - `identity_commitment === identityHasher.out`
 - `signature <== signatureHasher.out`
 
-Congratulations, you now know how to program cryptography! [^39]
+Complimenti, ora sai come programmare la crittografia! [^39]
 
-### Exercises
+### Esercizi
 
-9. What are the three components of a digital signature scheme?
-10. What is the purpose of using a "ZK-Friendly hash function" like Poseidon?
-11. What are commitments? How can we use them for a digital signature scheme?
-12. Why do we mark the identity commitment and message as public?
-13. Why do we need the identity commitment and signature constraints?
-14. Code: Finish `example3` until you generated and verified a proof.
+9. Quali sono i tre componenti di uno schema di firma digitale?
+10. Qual è lo scopo di usare una funzione di hash ZK-friendly come Poseidon?
+11. Cosa sono i commitment? Come possiamo usarli per uno schema di firma digitale?
+12. Perché contrassegniamo l'identity commitment e il messaggio come pubblici?
+13. Perché abbiamo bisogno dei vincoli sull'identity commitment e sulla firma?
+14. Codice: completa `example3` fino a generare e verificare una prova.
 
-## Next steps
+## Prossimi passi
 
-With the above digital signature scheme, and some tricks we saw earlier in the article, you have all the tools at your disposal to implement the _group signature scheme_ mentioned at the start of the article. [^40]
+Con lo schema di firma digitale descritto sopra, e i trucchi visti in precedenza nell'articolo, hai a disposizione tutti gli strumenti per implementare lo _schema di firma di gruppo_ (group signature) menzionato all'inizio dell'articolo. [^40]
 
-Skeleton code exists in `example4`. All you need is 5-10 lines of code. The only new syntax is a `for` loop, which works just as in most other language. [^41].
+Il codice scheletro si trova in `example4`. Servono solo 5-10 righe di codice. L'unica sintassi nuova è il ciclo `for`, che funziona come nella maggior parte degli altri linguaggi.[^41]
 
-This circuit will allow you to:
+Questo circuito ti permetterà di:
 
-- sign a message
-- proving that you are one of three people (identity commitments)
-- but not reveal which one
+- firmare un messaggio
+- dimostrare di essere una di tre persone (commitment di identità)
+- senza rivelare quale
 
-You can think of it as a puzzle. The key insight essentially boils down to a single arithmetic expression. Try to work it out on paper if you can. If you get stuck, you can check the solution as before.
+Puoi considerarlo un rompicapo. L'intuizione chiave si riduce essenzialmente a una singola espressione aritmetica. Prova a risolverla su carta, se puoi. Se ti blocchi, puoi consultare la soluzione come negli esercizi precedenti.
 
-Finally, if you want some extra challenges, here are some ways to extend it:
+Infine, se vuoi qualche sfida extra, ecco alcuni modi per estenderlo:
 
-1. Allow arbitrary many people in the group
-2. Implement a new circuit `reveal` that proves you signed a specific message
-3. Implement a new circuit `deny` that proves you did not sign a specific message
+1. Consentire un numero arbitrario di persone nel gruppo
+2. Implementare un nuovo circuito `reveal` che dimostri di aver firmato un messaggio specifico
+3. Implementare un nuovo circuito `deny` che dimostri di non aver firmato un messaggio specifico
 
-Creating a cryptographic protocol like this using classical tools would be a huge task requiring a lot of specialized knowledge. [^42] With ZKPs you can become productive and dangerous in an afternoon, treating these problems as programming tasks. And this is just the tip of the iceberg of what we can do.
+Creare un protocollo crittografico del genere con strumenti classici sarebbe un compito enorme, che richiederebbe molte competenze specialistiche. [^42] Con le ZKP puoi diventare produttivo e pericolosamente capace in un pomeriggio, affrontando questi problemi come compiti di programmazione. E questa è solo la punta dell'iceberg di ciò che possiamo fare.
 
-### Exercises
+### Esercizi
 
-15. What do group signatures do over normal signatures? How can they be used?
+15. Cosa fanno le firme di gruppo rispetto alle firme normali? Come possono essere utilizzate?
 
-## Problems
+## Problemi
 
-These problems are optional and require a lot more effort.
+Questi problemi sono opzionali e richiedono molto più sforzo.
 
-1. Figure out how `IsZero()` is implemented.
-2. Code: Finish the group signature scheme above (see `example4`).
-3. Code: Extend the group signature example above: Allow for more people and implement `reveal` and/or `deny` circuits.
-4. How would you design a "ZK Identity" system for proving you are over 18? What are some other properties you might want to prove? At a high level, how would you implement it, and what challenges do you see? Research existing solutions to get a better understanding of how they are implemented.
-5. For public blockchains like Ethereum, sometimes a _Layer 2_ (L2) is used to allow for faster, cheaper and more transactions. At a high level, how would you design an L2 using ZKPs? Explain some challenges you see with this. Research existing solutions to get a better understanding of how they are implemented.
+1. Scopri come è implementato `IsZero()`.
+2. Codice: completa lo schema di firma di gruppo qui sopra (vedi `example4`).
+3. Codice: estendi l'esempio di firma di gruppo qui sopra: consenti più partecipanti e implementa i circuiti `reveal` e/o `deny`.
+4. Come progetteresti un sistema di "ZK Identity" per dimostrare di avere più di 18 anni? Quali altre proprietà potresti voler dimostrare? Ad alto livello, come lo implementeresti e quali sfide intravedi? Studia le soluzioni esistenti per capire meglio come vengono realizzate.
+5. Per le blockchain pubbliche come Ethereum, a volte si ricorre a un _Layer 2_ (L2) per consentire transazioni più veloci, economiche e numerose. Ad alto livello, come progetteresti un L2 utilizzando le ZKP? Descrivi alcune sfide che intravedi. Studia le soluzioni esistenti per capire meglio come vengono realizzate.
 
-## Conclusion
+## Conclusione
 
-In this tutorial introduction, we've gotten familiar with how to write and modify basic ZKPs from scratch. We setup our programming environment and wrote a basic circuit. We then performed a trusted setup, created and verified proofs. We identified some problems and improved our circuit, making sure to test our changes. After that, we implemented a basic digital signature scheme using hash functions and commitments.
+In questa introduzione pratica, abbiamo preso confidenza con la scrittura e la modifica di ZKP di base partendo da zero. Abbiamo configurato l'ambiente di programmazione e scritto un circuito di base. Abbiamo poi eseguito un trusted setup, creato e verificato le prove. Abbiamo individuato alcuni problemi e migliorato il nostro circuito, assicurandoci di testare le modifiche. Successivamente, abbiamo implementato uno schema di firma digitale di base usando funzioni di hash e commitment.
 
-We also learned enough skills and tools to be able to implement group signatures, something that would be difficult to implement without ZKPs.
+Abbiamo inoltre acquisito le competenze e imparato a usare gli strumenti necessari per implementare le firme di gruppo (group signatures), qualcosa che sarebbe difficile da realizzare senza le ZKP.
 
-I hope you have developed a better mental model of what is involved in writing ZKPs, and have a better sense of what the edit-run-debug cycle looks like in practice. This will work as a good foundation for any other ZKPs program you may write in the future, regardless of what tech stack you end up using.
+Spero che tu abbia sviluppato un miglior modello mentale di ciò che comporta la scrittura di ZKP, e che tu abbia un'idea più chiara di come si presenta in pratica il ciclo modifica-esecuzione-debug. Tutto questo costituirà una buona base per qualsiasi altro programma ZKP tu voglia scrivere in futuro, indipendentemente dallo stack tecnologico che utilizzerai.
 
-## Acknowledgements
+## Ringraziamenti
 
-Thanks to Hanno Cornelius, Marc Köhlbrugge, Michelle Lai, lenilsonjr, and Chih-Cheng Liang for reading drafts and providing feedback on this.
+Grazie a Hanno Cornelius, Marc Köhlbrugge, Michelle Lai, lenilsonjr e Chih-Cheng Liang per aver letto le bozze e aver fornito preziosi suggerimenti.
 
-### Images
+### Immagini
 
-- _Bourbaki Congress 1938_ - Unknown, Public domain, via [Wikimedia](https://commons.wikimedia.org/wiki/File:Bourbaki_congress1938.png)
-- _Hartmann's Zebras_ - J. Huber, CC BY-SA 2.0, via [Wikimedia](https://commons.wikimedia.org/wiki/File:Hartmann_zebras_hobatereS.jpg)
-- _Trapdoor Spider_ - P.S. Foresman, Public domain, via [Wikimedia](<https://commons.wikimedia.org/wiki/File:Trapdoor_(PSF).png>)
-- _Kingsley Lockbox_ - P.S. Foresman, Public domain, via [Wikimedia](https://commons.wikimedia.org/wiki/File:Kingsley_lockbox.jpg)
+- _Congresso Bourbaki 1938_ - Autore sconosciuto, Pubblico dominio, tramite [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Bourbaki_congress1938.png)
+- _Zebre di Hartmann_ - J. Huber, CC BY-SA 2.0, tramite [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Hartmann_zebras_hobatereS.jpg)
+- _Ragno della botola_ - P.S. Foresman, Pubblico dominio, tramite [Wikimedia Commons](<https://commons.wikimedia.org/wiki/File:Trapdoor_(PSF).png>)
+- _Cassetta di sicurezza Kingsley_ - P.S. Foresman, Pubblico dominio, tramite [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Kingsley_lockbox.jpg)
 
-## References
+## Riferimenti
 
-[^1]: While illustrative as a metaphor, this is just one of several theories. If you are curious, check out https://en.wikipedia.org/wiki/Zebra#Function.
-[^2]: See [Federalist Papers (Wikipedia)](https://en.wikipedia.org/wiki/The_Federalist_Papers#Authorship).
-[^3]: See [Bourbaki (Wikipedia)](https://en.wikipedia.org/wiki/Nicolas_Bourbaki#Membership).
-[^4]: Unless you have done some form of declarative programming (as in: non-procedural, like Prolog, this is probably new to you. To some extent we do this in SQL too. We describe _what_ we want, not necessarily _how_ we want it done.
-[^5]: Technically, zero constraint is also a set of constraints. While said in jest, under-constrained circuits are a big problem that can lead to many serious bugs. We will see an example of this later on.
-[^6]: We call it a _circuit_, or more precisely an _arithmetic circuit_, because it connects inputs and outputs in a similar fashion to logical gates such as NAND, AND, NOT, XOR, etc gates. From this we can build a universal computer, or universal circuit.
-[^7]: In general, using `<--` is not recommended and you should almost always avoid it by using `<==` instead.
-[^8]: This makes writing constraints quite challenging, as you can imagine. See https://docs.circom.io/circom-language/constraint-generation/ for more details on constraints in Circom.
-[^9]: To say "this number is between 1 and 9" we have to implement a _range check_. This includes decomposing the number into bits and performing equality checks on them them. Luckily, a lot of these types of constraints have already been written and be re-used, as we'll see later with _circomlib_.
-[^10]: For example `p(x) = ax^2 + bx + c` can easily be added, multiplied together or compared with `q(x) = dx^2 + 2bx + e`. It is worth noting that in ZKPs we operate over finite fields, not real numbers. This is out of scope of this article, thoguh.
-[^11]: While most ZKPs use _arithmetic circuits_, there are other proving systems work with other abstractions. For example, zkSTARKs and Bulletproofs.
-[^12]: Linear constraint means it can be expressed as a linear combination using only addition. This is equivalent to using multiplications with constants. The main thing to be aware of is that linear constraints are less complex than non-linear ones. See [constraint generation](https://docs.circom.io/circom-language/constraint-generation/) for more details. Wires and labels refers to what the _arithmetic circuit_ looks like. This is not something you usually have to care about. See [arithmetic circuits](https://docs.circom.io/background/background/#arithmetic-circuits) for more details.
-[^13]: Mathematically, what we are doing is making sure the equation `Az * Bz = Cz` holds, where `Z=(W,x,1)`. `A`, `B,` and `C` are matrices, `W` is the witness (private input), and `x` is public input/out. While useful to know, it is not necessary to understand this for writing circuits. See [Rank-1 constraint system](https://docs.circom.io/background/background/#rank-1-constraint-system) for more details.
-[^14]: : A better, but less commonly used, term here would be "proving parameters" and "verification parameters", respectively. This would be a bit more intuitive as keys are usually meant to be private. We will keep using "key" as opposed to "parameter" because that is what you are most likely to run into in the wild.
-[^15]: As [mentioned](https://zkintro.com/articles/friendly-introduction-to-zero-knowledge#user-content-fn-33) in the _friendly introduction_ article, there's a great layman's podcast on The Ceremony Zcash held in 2016 that you can listen to [here](https://radiolab.org/podcast/ceremony). Since then, a lot has changed in terms of trusted setups, and they are much easier to run and participate in.
-[^16]: This is because we rely on randomness to make the generation of proving and verification keys secure. In a real trusted setup, getting more sources of entropy is often desirable.
-[^17]: We call this a 1-out-of N trust model. There are many other trust models; the one you are most familiar with is probably majority rule, where you trust the majority to make the right decision. This is basically how democracy and most voting works.
-[^18]: Since we always generate the witness together with the proof, the resulting binary file `witness.wtns` is mostly an intermediate step and an implementation detail. We use it straight away to generate the proof, which is why it is omitted from the diagram.
-[^19]: In the literature, a witness is just the `W` part of the vector `Z=(W,x,1)` used in R1CS, where `x` is all the public/input signals. In Circom, the whole vector is referred to as the witness. Also see note 13.
-[^20]: The numbers have been abbreviated for brevity with `[...]`. Mathematically, these are elliptic curve points on the _bn128_ curve, with a field size of 254-bits. A 254-bit number can have up to 77 digits in its decimal representation.
-[^21]: The output is a bit unintuitive in that it doesn't map to the original signal name like this: `{"c": "33"}`. This requires the developer to re-map the outputs according to the order they were defined in the circuit. This is due to the implementation of `snarkjs` where we lose the variable information for proof generation.
-[^22]: Also known as a _cryptographic hardness assumption_. See [Computational hardness assumption (Wikipedia)](https://en.wikipedia.org/wiki/Computational_hardness_assumption#Common_cryptographic_hardness_assumptions).
-[^23]: See https://en.wikipedia.org/wiki/Integer_factorization for more.
-[^24]: While we can add _asserts_, these aren't actually constraints but only used for sanitizing input. See https://docs.circom.io/circom-language/code-quality/code-assertion/ for how that works and https://www.chainsecurity.com/blog/circom-assertions-misconceptions-and-deceptions for an example of how misusing asserts can go wrong. For more intuition on what constraints are, see the previous section _On constraints_.
-[^25]: This resource by 0xPARC is excellent if you want to dive deeper into the art of writing (Circom) circuits: https://learn.0xparc.org/materials/circom/learning-group-1/circom-1/ (in particular the Circom workshops). Reading the standard library can also be illuminating, see note 26.
-[^26]: Due to the nature of writing constraints, this comes up a lot. See https://en.wikipedia.org/wiki/Truth_table.
-[^27]: See https://github.com/iden3/circomlib for more on circomlib.
-[^28]: See https://github.com/iden3/circomlib/blob/master/circuits/comparators.circom.
-[^29]: People usually share these `ptau` files across projects for increased security. See https://github.com/privacy-scaling-explorations/perpetualpowersoftau for details. You can also find a list of these ptau files, of various size, in https://github.com/iden3/snarkjs.
-[^30]: Here the ladder represents some value that allows us to go the opposite, "hard" way. Another way to think about it is as a padlock. You can easily lock it, but hard to unlock it, unless you have a key. Trapdoor functions also have a more formal definition, see https://en.wikipedia.org/wiki/Trapdoor_function.
-[^31]: Screenshot from Wikipedia. See [ECDSA (Wikipedia)](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm#Signature_verification_algorithm).
-[^32]: This command should work on most Unix-style systems. We use `-n` to specify no newline character (`foo`, not `foo\n`), and `-a` to specify we want SHA256.
-[^33]: See https://en.wikipedia.org/wiki/Commitment_scheme. Note that we don't always need the "hidden" property. For example, when it comes to using ZKPs to make Ethereum more scalable, we only want an efficient subset reveal of the state trie.
-[^34]: We use Poseidon, but there are many others. Why is it faster? These ZK-friendly hash functions are implemented using arithmetic operations on prime fields, not bitwise operations like SHA256. it takes a lot fewer constraints to implement, which results in faster proving time. The performance difference between the two can be up to two orders of magnitude. On the flip side, a hash function like SHA256 has been studied more rigorously than most of these new ZK-friendly hash functions.
-[^35]: In ZKPs, we often want to hash multiple things together. Unlike a traditional context, we can't just concatenate strings together ("foo bar"), so we instead specify how many inputs we have to our hash function.
-[^36]: As mentioned in the note above, if this was using SHA-256 or doing some elliptic curve math the constraint count would be a lot higher. If we had more than 4000 constraints, we'd have to perform (or re-use) another phase 1 trusted setup with a higher capacity ptau.
-[^37]: We can however encode our string as a byte array, using Unicode or ASCII. In a real application you'd probably use the hash of your message in its BigInt representation instead.
-[^38]: In a real-world digital signature scheme, where multiple messages are exchange, we'd also probably want to introduce a cryptographic nonce. This is to avoid replay attacks, where someone could re-use the same signature at a later time. See https://en.wikipedia.org/wiki/Replay_attack.
-[^39]: For real-world applications, try to re-use existing work and best practices as much as possible. There are a lot of things that can go wrong if you aren't careful. Luckily, this is getting easier and easier as the ZKP ecosystem mature. At a certain stage, a lot of high-risk applications do security audits to make sure their applications are secure (or at least not provably insecure).
-[^40]: Implementing group signatures in ZKP was inspired by 0xPARC, see https://0xparc.org/blog/zk-group-sigs.
-[^41]: See https://docs.circom.io/circom-language/control-flow/.
-[^42]: In comparison, a paper implementing group signatures like https://eprint.iacr.org/2015/043.pdf involves some heavy cryptography and math.
+[^1]: Sebbene sia illustrativa come metafora, quella descritta è solo una delle diverse teorie. Se sei curioso, consulta https://en.wikipedia.org/wiki/Zebra#Function.
+[^2]: Vedi [Federalist Papers (Wikipedia)](https://en.wikipedia.org/wiki/The_Federalist_Papers#Authorship).
+[^3]: Vedi [Bourbaki (Wikipedia)](https://en.wikipedia.org/wiki/Nicolas_Bourbaki#Membership).
+[^4]: A meno che tu non abbia già avuto esperienza con qualche forma di programmazione dichiarativa (cioè non procedurale, come Prolog), questa è probabilmente un'idea nuova. In un certo senso la ritroviamo anche in SQL. Descriviamo _cosa_ vogliamo, non necessariamente _come_ vogliamo ottenerlo.
+[^5]: Tecnicamente, anche zero vincoli costituiscono un insieme di vincoli. Detto per scherzo, ma i circuiti sotto-vincolati sono un problema grave che può portare a bug seri. Ne vedremo un esempio più avanti.
+[^6]: Lo chiamiamo _circuito_, o più precisamente _circuito aritmetico_, perché collega ingressi e uscite in modo simile ai gate logici come NAND, AND, NOT, XOR, ecc. Da questi è possibile costruire un computer universale, o circuito universale.
+[^7]: In generale, l'uso di `<--` non è raccomandato: è quasi sempre preferibile utilizzare `<==` al suo posto.
+[^8]: Questo rende la scrittura dei vincoli piuttosto impegnativa, come si può immaginare. Vedi https://docs.circom.io/circom-language/constraint-generation/ per maggiori dettagli sui vincoli in Circom.
+[^9]: Per affermare "questo numero è compreso tra 1 e 9" dobbiamo implementare un _range check_ (verifica di intervallo). Ciò implica decomporre il numero in bit ed eseguire verifiche di uguaglianza su di essi. Per fortuna, molti di questi vincoli tipici sono già stati scritti e possono essere riutilizzati, come vedremo più avanti con _circomlib_.
+[^10]: Ad esempio, `p(x) = ax^2 + bx + c` può facilmente essere sommato, moltiplicato o confrontato con `q(x) = dx^2 + 2bx + e`. Vale la pena notare che nelle ZKP si opera su campi finiti, non su numeri reali. Questo argomento esula dall'ambito di questo articolo.
+[^11]: Sebbene la maggior parte delle ZKP utilizzi _circuiti aritmetici_, esistono altri sistemi di dimostrazione basati su astrazioni diverse. Ad esempio, zkSTARKs e Bulletproofs.
+[^12]: Un vincolo lineare è un vincolo che può essere espresso come combinazione lineare usando solo l'addizione. Ciò equivale a usare moltiplicazioni per costanti. La cosa principale da tenere a mente è che i vincoli lineari sono meno complessi di quelli non lineari. Vedi [constraint generation](https://docs.circom.io/circom-language/constraint-generation/) per maggiori dettagli. _Wires_ e _label_ si riferiscono all'aspetto visivo del _circuito aritmetico_. Non è qualcosa di cui ci si deve solitamente preoccupare. Vedi [arithmetic circuits](https://docs.circom.io/background/background/#arithmetic-circuits) per maggiori dettagli.
+[^13]: Matematicamente, quello che facciamo è verificare che l'equazione `Az * Bz = Cz` sia soddisfatta, dove `Z=(W,x,1)`. `A`, `B` e `C` sono matrici, `W` è il witness (l'input privato) e `x` è l'input/output pubblico. Pur essendo utile da sapere, non è necessario comprendere questo per scrivere circuiti. Vedi [Rank-1 constraint system](https://docs.circom.io/background/background/#rank-1-constraint-system) per maggiori dettagli.
+[^14]: Un termine più corretto, anche se meno diffuso, sarebbe "parametri di dimostrazione" e "parametri di verifica", rispettivamente. Sarebbe più intuitivo, poiché le chiavi sono solitamente concepite come private. Manterremo il termine "chiave" invece di "parametro" perché è quello che si incontra più spesso nel mondo reale.
+[^15]: Come [menzionato](https://zkintro.com/it/articles/friendly-introduction-to-zero-knowledge#user-content-fn-33) nell'articolo _friendly introduction_, esiste un ottimo podcast divulgativo sulla cerimonia di Zcash del 2016, disponibile [qui](https://radiolab.org/podcast/ceremony). Da allora molto è cambiato riguardo ai trusted setup, che sono diventati molto più semplici da organizzare e a cui partecipare.
+[^16]: Questo perché ci affidiamo alla casualità per rendere sicura la generazione delle proving key e delle verification key. In un trusted setup reale, disporre di un maggior numero di fonti di entropia è spesso auspicabile.
+[^17]: Questo è detto modello di fiducia 1-su-N. Esistono molti altri modelli di fiducia; quello più familiare è probabilmente la regola della maggioranza, in cui ci si fida che la maggioranza prenda la decisione giusta. È sostanzialmente il principio su cui si basano la democrazia e la maggior parte dei sistemi di voto.
+[^18]: Poiché generiamo sempre il witness insieme alla prova, il file binario risultante `witness.wtns` è per lo più un passaggio intermedio e un dettaglio implementativo. Lo utilizziamo immediatamente per generare la prova, motivo per cui è omesso dal diagramma.
+[^19]: In letteratura, un witness è semplicemente la parte `W` del vettore `Z=(W,x,1)` usato nel R1CS, dove `x` rappresenta tutti i segnali pubblici/di input. In Circom, l'intero vettore viene chiamato witness. Vedi anche la nota 13.
+[^20]: I numeri sono stati abbreviati per brevità con `[...]`. Dal punto di vista matematico, si tratta di punti su curva ellittica della curva _bn128_, con una dimensione del campo di 254 bit. Un numero a 254 bit può avere fino a 77 cifre nella sua rappresentazione decimale.
+[^21]: L'output è un po' controintuitivo nel senso che non corrisponde direttamente al nome originale del segnale in questo modo: `{"c": "33"}`. Lo sviluppatore deve quindi riassegnare gli output in base all'ordine in cui sono stati definiti nel circuito. Ciò è dovuto all'implementazione di `snarkjs`, che perde le informazioni sulle variabili durante la generazione della prova.
+[^22]: Nota anche come _assunzione di difficoltà crittografica_. Vedi [Computational hardness assumption (Wikipedia)](https://en.wikipedia.org/wiki/Computational_hardness_assumption#Common_cryptographic_hardness_assumptions).
+[^23]: Vedi https://en.wikipedia.org/wiki/Integer_factorization per approfondire.
+[^24]: Sebbene si possano aggiungere _assert_, questi non sono in realtà vincoli ma vengono usati solo per il controllo degli input. Vedi https://docs.circom.io/circom-language/code-quality/code-assertion/ per capire come funzionano e https://www.chainsecurity.com/blog/circom-assertions-misconceptions-and-deceptions per un esempio di come l'uso improprio degli assert può causare problemi. Per una maggiore comprensione di cosa sono i vincoli, vedi la sezione precedente _Sui vincoli_.
+[^25]: Questa risorsa di 0xPARC è eccellente se vuoi approfondire l'arte di scrivere circuiti (Circom): https://learn.0xparc.org/materials/circom/learning-group-1/circom-1/ (in particolare i workshop su Circom). Anche l'esame della libreria standard può rivelarsi molto istruttivo; vedi nota 26.
+[^26]: A causa della natura della scrittura dei vincoli, questo argomento ricorre spesso. Vedi https://en.wikipedia.org/wiki/Truth_table.
+[^27]: Vedi https://github.com/iden3/circomlib per maggiori informazioni su circomlib.
+[^28]: Vedi https://github.com/iden3/circomlib/blob/master/circuits/comparators.circom.
+[^29]: Di solito i file `ptau` vengono condivisi tra progetti per aumentare la sicurezza. Vedi https://github.com/privacy-scaling-explorations/perpetualpowersoftau per i dettagli. Un elenco di questi file ptau, di varie dimensioni, è disponibile anche in https://github.com/iden3/snarkjs.
+[^30]: Qui la scala rappresenta un valore che ci permette di percorrere il cammino opposto, quello "difficile". Un altro modo di pensarci è come un lucchetto: è facile chiuderlo, ma difficile aprirlo senza la chiave. Le trapdoor function hanno anche una definizione formale più rigorosa; vedi https://en.wikipedia.org/wiki/Trapdoor_function.
+[^31]: Screenshot da Wikipedia. Vedi [ECDSA (Wikipedia)](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm#Signature_verification_algorithm).
+[^32]: Questo comando dovrebbe funzionare sulla maggior parte dei sistemi di tipo Unix. Usiamo `-n` per specificare l'assenza del carattere di newline (`foo`, non `foo\n`), e `-a` per indicare che vogliamo usare SHA256.
+[^33]: Vedi https://en.wikipedia.org/wiki/Commitment_scheme. Si noti che la proprietà di hiding (occultamento) non è sempre necessaria. Ad esempio, quando si usano le ZKP per rendere Ethereum più scalabile, si vuole soltanto una rivelazione efficiente di un sottoinsieme del trie di stato.
+[^34]: Usiamo Poseidon, ma ne esistono molte altre. Perché è più veloce? Queste funzioni di hash ZK-friendly (ottimizzate per ZKP) vengono implementate usando operazioni aritmetiche su campi primi, non operazioni bit a bit come SHA256. Richiedono molti meno vincoli da implementare, il che si traduce in tempi di dimostrazione più rapidi. La differenza di prestazioni tra le due può arrivare a due ordini di grandezza. Di contro, una funzione di hash come SHA256 è stata studiata in modo molto più rigoroso rispetto alla maggior parte di queste nuove funzioni di hash ZK-friendly.
+[^35]: Nelle ZKP, spesso vogliamo fare l'hash di più elementi insieme. A differenza di un contesto tradizionale, non possiamo semplicemente concatenare stringhe ("foo bar"), quindi specifichiamo invece quanti input passiamo alla nostra funzione di hash.
+[^36]: Come indicato nella nota precedente, se si usasse SHA-256 o operazioni su curve ellittiche, il numero di vincoli sarebbe molto più elevato. Con più di 4000 vincoli, saremmo costretti a eseguire (o riutilizzare) un'altra fase 1 del trusted setup con un file ptau di capacità maggiore.
+[^37]: Possiamo tuttavia codificare la stringa come array di byte, usando Unicode o ASCII. In un'applicazione reale si utilizzerebbe probabilmente l'hash del messaggio nella sua rappresentazione BigInt.
+[^38]: In uno schema di firma digitale reale, in cui vengono scambiati più messaggi, si vorrebbe probabilmente introdurre anche un nonce crittografico. Questo per evitare i replay attack (attacco di riproduzione), in cui qualcuno potrebbe riutilizzare la stessa firma in un momento successivo. Vedi https://en.wikipedia.org/wiki/Replay_attack.
+[^39]: Per applicazioni reali, cerca di riutilizzare il più possibile lavoro esistente e le best practice. Ci sono molte cose che possono andare storte se non si è prudenti. Per fortuna, la situazione sta migliorando man mano che l'ecosistema ZKP matura. A un certo punto del loro sviluppo, molte applicazioni ad alto rischio si sottopongono ad audit di sicurezza per verificare che siano sicure (o almeno non dimostrabilmente insicure).
+[^40]: L'implementazione delle firme di gruppo (group signature) in ZKP è stata ispirata da 0xPARC; vedi https://0xparc.org/blog/zk-group-sigs.
+[^41]: Vedi https://docs.circom.io/circom-language/control-flow/.
+[^42]: A titolo di confronto, un articolo scientifico che implementa firme di gruppo come https://eprint.iacr.org/2015/043.pdf presenta una complessità crittografica e matematica ben maggiore.
