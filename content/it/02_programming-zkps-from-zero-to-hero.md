@@ -308,7 +308,7 @@ La prova ha un aspetto simile a questo:
 
 Questa specifica la prova sotto forma di oggetti matematici (tre elementi di curve ellittiche), `pi_a`, `pi_b` e `pi_c`. [^20] Include anche alcuni metadati sul protocollo (`groth16`) e sulla _curva_ (`bn128`, un dettaglio di implementazione matematica che ignoreremo per ora). Questo permette al verifier di sapere come trattare questa prova per verificarla correttamente.
 
-Nota quanto sia breve la prova; indipendentemente da quanto sia complesso il nostro programma speciale, la prova avrà sempre e solo questa dimensione. Questo illustra la proprietà di _sinteticità_ delle ZKP di cui abbiamo parlato nella nostra [_introduzione amichevole_](https://zkintro.com/it/articles/friendly-introduction-to-zero-knowledge#compression).
+Nota quanto sia breve la prova; indipendentemente da quanto sia complesso il nostro programma speciale, la prova avrà sempre e solo questa dimensione. Questo illustra la proprietà di _sinteticità_ delle ZKP di cui abbiamo parlato nella nostra [_introduzione semplificata_](https://zkintro.com/it/articles/friendly-introduction-to-zero-knowledge#compression).
 
 Il comando precedente produce anche il nostro _output pubblico_:
 
@@ -397,7 +397,7 @@ Per riferimento, il file finale è disponibile in `example2-solution.circom`. Co
 
 ### Ripetere il trusted setup
 
-Con Circom e Groth16, ogni volta che modifichiamo il nostro circuito dobbiamo ripetere il trusted setup. Questo significa che faresti meglio ad accertarti che il circuito sia solido prima di rilasciarlo — soprattutto se si organizza una cerimonia vera e propria con molti partecipanti.
+Con Circom e Groth16, ogni volta che modifichiamo il nostro circuito dobbiamo ripetere il trusted setup. Questo significa che faresti meglio ad accertarti che il circuito sia solido prima di rilasciarlo, soprattutto se si organizza una cerimonia vera e propria con molti partecipanti.
 
 Più precisamente, dobbiamo ripetere solo il trusted setup specifico per il circuito (fase 2). Questo perché la fase 1 è generica per _qualsiasi_ circuito Groth16 scritto in Circom, fino a una certa dimensione. Quando abbiamo eseguito il trusted setup in precedenza, abbiamo svolto sia la fase 1 sia la fase 2, omettendo i dettagli della fase 1 per semplicità. Ecco alcune informazioni aggiuntive sulla fase 1 per dare un quadro più completo.
 
