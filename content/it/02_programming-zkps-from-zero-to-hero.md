@@ -5,8 +5,8 @@ tags: ['zero-knowledge']
 draft: false
 layout: PostSimple
 slug: "programming-zkps-from-zero-to-hero"
-images: [../assets/02_combined.png']
-summary: "Impara a scrivere e modificare Zero Knowledge Proofs (ZKP, dimostrazioni a conoscenza zero) da zero. Costruirai uno schema di firma digitale basato su commitment basati su funzioni di hash, acquisendo competenze pratiche e intuizione sulla programmazione ZKP strada facendo. Alla fine, avrai tutti gli strumenti necessari per implementare cose come le firme di gruppo."
+images: ['../assets/02_combined.png']
+summary: "Impara a scrivere e modificare Zero Knowledge Proofs (ZKP, dimostrazioni a conoscenza zero) da zero. Costruirai uno schema di firma digitale basato su commitment basati su funzioni dsi hash, acquisendo competenze pratiche e intuizione sulla programmazione ZKP strada facendo. Alla fine, avrai tutti gli strumenti necessari per implementare cose come le firme di gruppo."
 translator: 'Silvio Meneguzzo'
 ---
 

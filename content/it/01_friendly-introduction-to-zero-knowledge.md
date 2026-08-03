@@ -9,7 +9,7 @@ slug: "friendly-introduction-to-zero-knowledge"
 images: ['../assets/01_zkp-magic.png']
 summary: "Le Zero Knowledge Proofs sono pura magia. Ci permettono di realizzare cose che prima non avremmo nemmeno immaginato. Questo è il primo di una serie di articoli sulle Zero Knowledge Proofs e le loro applicazioni. Vedremo cosa sono, perché dovrebbero interessarci, come funzionano e dove possono essere utilizzate."
 translator: 'Silvio Meneguzzo'
-------------------------------
+---
 
 _Questo libro è stato tradotto e adattato da Silvio Meneguzzo_
 
