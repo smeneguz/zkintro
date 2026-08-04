@@ -1,4 +1,5 @@
 ---
+
 title: 'Introduzione semplificata alla Zero Knowledge'
 date: '2023-07-17'
 tags: ['zero-knowledge']
@@ -50,7 +51,7 @@ Chi comprende realmente questi sistemi e le conseguenze del nostro utilizzo? E s
 
 Come può reagire una persona? Fidandosi. Ma di chi? E perché?
 
-È un problema complesso. Il nostro cervello non si è evoluto per gestire questioni simili. Internet, pur avendoci connesso e semplificato la vita in tanti modi, ha anche creato un discreto caos. In passato, se avevi una conversazione privata, questa svaniva nel vvento. Se restavi chiuso fuori casa, chiamavi un fabbro, o al limite forzavi la serratura. Ma con chi parli quando resti escluso dal tuo account Google davanti alla scritta "Accesso negato"? Con nessuno. Ti trovi davanti a un castello invisibile e impenetrabile.
+È un problema complesso. Il nostro cervello non si è evoluto per gestire questioni simili. Internet, pur avendoci connesso e semplificato la vita in tanti modi, ha anche creato un discreto caos. In passato, se avevi una conversazione privata, questa svaniva nel vento. Se restavi chiuso fuori casa, chiamavi un fabbro, o al limite forzavi la serratura. Ma con chi parli quando resti escluso dal tuo account Google davanti alla scritta "Accesso negato"? Con nessuno. Ti trovi davanti a un castello invisibile e impenetrabile.
 
 Le ZKPs possono aiutarci, magari non sempre, non ovunque e forse non proprio in questo preciso momento, ma già oggi possono essere applicate in numerosi contesti e in futuro lo saranno sempre di più. Nel resto di questo articolo cercherò di convincerti del perché e del come. Seguiamo insieme questa magia.
 
