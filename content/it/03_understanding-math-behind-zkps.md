@@ -167,7 +167,7 @@ Il sistema ZKP che esamineremo si chiama ZKBoo, definito originariamente per cir
 
 ### Commitment
 
-Abbiamo già introdotto i commitment in _Programming ZKPs: From Zero To Hero_ [^12]. Qui li ripassiamo brevemente.
+Abbiamo già introdotto i commitment in _Programmare le ZKP: From Zero to Hero_ [^12]. Qui li ripassiamo brevemente.
 
 I commitment ci permettono di impegnarci ("promettere") su un valore senza rivelarlo. Ci impegniamo in modo tale da non poter cambiare idea su ciò a cui ci siamo impegnati. Esistono molti tipi di commitment, ma il più semplice consiste nell'impegnarsi su un singolo messaggio e nell'usare una _funzione di hash_ come `SHA256` per farlo [^13].
 
@@ -483,7 +483,7 @@ Con questo, abbiamo dimostrato un insieme di vincoli usando addizione e moltipli
 
 ### Migliorare la solidità
 
-Diamo un'occhiata più critica al protocollo sigma che abbiamo specificato sopra. E se il Prover imbroglia? Supponiamo che indovini che il Verifier sceglierà la colonna $(2,3)$. A quel punto non deve realmente conoscere i valori privati. Per esempio, in $c +d =e$ non deve conoscere $c$ o $d$, $c_1$ o $d_1$. Può semplicemente inventarsi dei valori che facciano passare la _verifica di coerenza_. Questo perché il Verifier verifica solo la seconda e la terza colonna.
+Diamo un'occhiata più critica al protocollo sigma che abbiamo specificato sopra. E se il Prover imbrogliasse? Supponiamo che indovini che il Verifier sceglierà la colonna $(2,3)$. A quel punto non deve realmente conoscere i valori privati. Per esempio, in $c +d =e$ non deve conoscere $c$ o $d$, $c_1$ o $d_1$. Può semplicemente inventarsi dei valori che facciano passare la _verifica di coerenza_. Questo perché il Verifier controlla solo la seconda e la terza colonna.
 
 Ricorda le verifiche che il Verifier esegue:
 
@@ -669,7 +669,7 @@ Non approfondiremo questi argomenti allo stesso livello, ma ti forniremo risorse
 
 ### Problemi
 
-Questi sono problemi opzionali che richiederanno un po' più impegno.
+Questi sono problemi opzionali che richiederanno un po' più di impegno.
 
 6. Implementa più round in SageMath (vedi Appendice A)
 7. Implementa Fiat-Shamir in SageMath (vedi Appendice A)
@@ -891,10 +891,10 @@ A volte un andamento quasi-lineare, per esempio $O(n \log n)$, è accettato come
 [^33]: Nella pratica, molte prove sono logaritmiche, $O(\log n)$. A volte va bene anche un andamento quasi-lineare, $O(n \log n)$, e viene comunque considerato "abbastanza succinto". Il caso migliore è $O(1)$, ma spesso comporta altri compromessi. Esempi di sistemi di dimostrazione succinti sono Groth16 e Plonk. Anche le costanti contano, specialmente quando si tratta di verifica on-chain. Ma questo esula dall'ambito di questo articolo. Vedi ad esempio le motivazioni per cui Groth16 o i commitment KZG sono spesso usati in Ethereum.
 [^34]: Nel senso di esprimere gli algoritmi principali, non di offrire una gestione degli errori completa, una buona API, buone prestazioni ecc.
 [^35]: $(\mathbb{Z}, +, \cdot)$ è un _anello_; più precisamente è un _anello commutativo (o abeliano)_ poiché la moltiplicazione è commutativa ($a \cdot b = b \cdot a$).
-[^36]: Chiamiamo $1$ qui l'elemento neutro $e$. Esiste sia per l'addizione (di solito 0), sia per la moltiplicazione (di solito 1). Vedi [definizione di campo](<https://en.wikipedia.org/wiki/Field_(mathematics)#Definition>) per saperne di più.
+[^36]: Qui chiamiamo $1$ l'elemento neutro $e$. Esiste sia per l'addizione (di solito 0), sia per la moltiplicazione (di solito 1). Vedi [definizione di campo](<https://en.wikipedia.org/wiki/Field_(mathematics)#Definition>) per saperne di più.
 [^37]: E quelli che vengono chiamati campi di estensione primi (prime extension fields), come $p^n$.
 [^38]: Nella crittografia applicata e nell'informatica, la notazione $\mathbb{GF}(p)$ è più comune, mentre in matematica pura è più comune $\mathbb{F}_p$. Il nome Galois Field (campo di Galois) è in onore del matematico francese Galois, che li scoprì. Gettò le fondamenta dell'algebra astratta, e morì in duello all'età di 20 anni.
 [^39]: Per esempio $2^{255} - 19$. La scelta precisa del numero primo è un argomento più approfondito, con nozioni come la _pairing-friendliness_ (compatibilità con il pairing), specialmente quando si tratta di sistemi crittografici. Vedi per esempio perché è stato scelto BN254 in Zcash.
 [^40]: In questa spiegazione saltiamo la nozione di un passaggio di setup di preprocessing $\text{Setup}(C) \rightarrow (pp, vp)$, con i parametri del Prover ($pp$) e i parametri del Verifier ($vp)$. Di solito questo è incluso nelle definizioni, ma non ci serve in ZKBoo.
 [^41]: Non entreremo nei dettagli precisi di cosa significhi "conoscere" il witness qui, perché richiede la comprensione di nozioni come la solidità della conoscenza adattiva (adaptive knowledge soundness) e gli estrattori, che non sono necessarie per avere una comprensione concettuale della nozione di solidità statistica. Se vuoi approfondire, il libro di Thaler o i corsi di Boneh sono buone risorse. Vedi anche la nota 29.
-[^42]: Così come altre informazioni predeterminate, come l'algoritmo di sfida di Fiat-Shamir, ed eventualmente alcune "verification key", cioè chiavi di verifica (anche se non nel caso di ZKBoo).
+[^42]: Così come altre informazioni predeterminate, come l'algoritmo di challenge di Fiat-Shamir, ed eventualmente alcune "verification key", cioè chiavi di verifica (anche se non nel caso di ZKBoo).
