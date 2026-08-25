@@ -25,12 +25,13 @@ TEMPLATE := "build/templates/booklet.tex"
 #     cd site-astro && npm run build
 # NextJS:
 build-web:
-    cd site && npm run build
+    cd site && mise exec node@18 -- npm run build
 
 # Export NextJS site (static build)
+# Next 12 breaks on Node >= 20 (SlowBuffer removed), so pin Node 18 via mise
 export-web:
     @echo "Starting export process..."
-    cd site && npm run optimize-export
+    cd site && mise exec node@18 -- npm run optimize-export
     @echo "Static site exported and optimized in site/out directory - CSS and styling preserved"
 
 # Deploy the site to the server
@@ -172,7 +173,7 @@ build-pdfs-zh-tw:
 #     cd site-astro && npm run dev
 # NextJS:
 dev:
-    cd site && npm run dev
+    cd site && mise exec node@18 -- npm run dev
 
 # Clean build artifacts
 clean:
