@@ -6,7 +6,7 @@ draft: false
 layout: PostSimple
 slug: "understanding-math-behind-zkps"
 images: ['../assets/03_zkboo_headshot.png']
-summary: "In questo articolo spieghiamo la matematica alla base delle Zero Knowledge Proofs (ZKP, dimostrazioni a conoscenza zero), in modo accessibile a uno studente brillante delle superiori o a un laureato STEM (Scienza, Tecnologia, Ingegneria e Matematica) con le nozioni un po' arrugginite. Svilupperai l'intuizione su come funzionano le cose sotto il cofano e costruirai un quadro di riferimento di base per i concetti chiave coinvolti, il tutto accompagnato da un'implementazione giocattolo di meno di 100 righe di codice. Non servono polinomi né curve ellittiche."
+summary: "In questo articolo spieghiamo la matematica alla base delle Zero Knowledge Proofs (ZKP, dimostrazioni a conoscenza zero), in modo accessibile a uno studente brillante delle superiori o a un laureato STEM (Scienza, Tecnologia, Ingegneria e Matematica) con le nozioni un po' arrugginite. Svilupperai l'intuizione su come funzionano le cose sotto il cofano e costruirai un quadro di riferimento di base per i concetti chiave coinvolti, il tutto accompagnato da un'implementazione giocattolo in meno di 100 righe di codice. Non servono polinomi né curve ellittiche."
 translator: 'Silvio Meneguzzo'
 ---
 
@@ -16,7 +16,7 @@ _Questo libro è stato tradotto e adattato da Silvio Meneguzzo_
 
 ## Introduzione
 
-In questo articolo spieghiamo la matematica alla base delle Zero Knowledge Proofs (ZKP, dimostrazioni a conoscenza zero), in modo accessibile a uno studente brillante delle superiori o a un laureato STEM (Scienza, Tecnologia, Ingegneria e Matematica) con le nozioni un po' arrugginite. Svilupperai l'intuizione su come funzionano le cose sotto il cofano e costruirai un quadro di riferimento di base per i concetti chiave coinvolti, il tutto accompagnato da un'implementazione giocattolo di meno di 100 righe di codice. Non servono polinomi né curve ellittiche.
+In questo articolo spieghiamo la matematica alla base delle Zero Knowledge Proofs (ZKP, dimostrazioni a conoscenza zero), in modo accessibile a uno studente brillante delle superiori o a un laureato STEM (Scienza, Tecnologia, Ingegneria e Matematica) con le nozioni un po' arrugginite. Svilupperai l'intuizione su come funzionano le cose sotto il cofano e costruirai un quadro di riferimento di base per i concetti chiave coinvolti, il tutto accompagnato da un'implementazione giocattolo in meno di 100 righe di codice. Non servono polinomi né curve ellittiche.
 
 ### Prerequisiti
 
@@ -242,7 +242,7 @@ Esistono molti protocolli sigma diversi [^18]. In generale, hanno tutti le segue
 
 Quanto detto sopra potrebbe sembrare un po' astratto, ma diventerà molto più concreto una volta che avremo visto come viene usato in pratica per ZKBoo.
 
-Quello che segue sono alcuni semplici esercizi per verificare la tua comprensione.
+Seguono alcuni semplici esercizi per verificare la tua comprensione.
 
 ### Esercizi
 
@@ -348,7 +348,7 @@ In questo modo otteniamo le tre proprietà a cui teniamo:
 - Solidità - il Verifier è convinto solo se il Prover conosce davvero il segreto (vedremo tra poco il caso in cui il Prover sta imbrogliando)
 - Conoscenza zero - il Verifier non apprende nulla su $c$ e $d$ (a parte che sommati danno $e$)
 
-Sebbene impegnarsi sui valori colonna per colonna significhi che il Prover non può cambiare idea in seguito sul contenuto di quelle colonne, restano comunque alcuni problemi. E se il Prover indovinasse con quali colonne lo sfiderà il Verifier? Ci sono solo tre opzioni possibili: $(1,2), (1,3), (2,3)$. Se così fosse, potrebbe imbrogliare assicurandosi soltanto che quelle colonne tornino, senza conoscere $c$ e $d$. Questo significa che c'è una probabilità sbalorditiva del $\frac{1}{3}$ di imbrogliare!
+Sebbene impegnarsi sui valori colonna per colonna significhi che il Prover non può cambiare idea in seguito sul contenuto di quelle colonne, restano comunque alcuni problemi. E se il Prover indovinasse con quali colonne lo sfiderà il Verifier? Ci sono solo tre opzioni possibili: $(1,2), (1,3), (2,3)$. Se così fosse, potrebbe imbrogliare assicurandosi soltanto che quelle colonne tornino, senza conoscere $c$ e $d$. Questo significa che c'è una probabilità di ben $\frac{1}{3}$ di imbrogliare!
 
 Questo riguarda la natura statistica della _solidità_. Nella pratica crittografica, le probabilità svolgono spesso un ruolo nel garantire la sicurezza. L'obiettivo è ridurre il rischio di imbroglio a un livello trascurabile (anzi, astronomicamente trascurabile). Vedremo presto come farlo, usando più round del protocollo.
 
@@ -483,7 +483,7 @@ Con questo, abbiamo dimostrato un insieme di vincoli usando addizione e moltipli
 
 ### Migliorare la solidità
 
-Diamo un'occhiata più critica al protocollo sigma che abbiamo specificato sopra. E se il Prover imbrogliasse? Supponiamo che indovini che il Verifier sceglierà la colonna $(2,3)$. A quel punto non deve realmente conoscere i valori privati. Per esempio, in $c +d =e$ non deve conoscere $c$ o $d$, $c_1$ o $d_1$. Può semplicemente inventarsi dei valori che facciano passare la _verifica di coerenza_. Questo perché il Verifier controlla solo la seconda e la terza colonna.
+Diamo un'occhiata più critica al protocollo sigma che abbiamo specificato sopra. E se il Prover imbrogliasse? Supponiamo che indovini che il Verifier sceglierà le colonne $(2,3)$. A quel punto non deve realmente conoscere i valori privati. Per esempio, in $c +d =e$ non deve conoscere $c$ o $d$, $c_1$ o $d_1$. Può semplicemente inventarsi dei valori che facciano passare la _verifica di coerenza_. Questo perché il Verifier controlla solo la seconda e la terza colonna.
 
 Ricorda le verifiche che il Verifier esegue:
 
@@ -492,13 +492,13 @@ Ricorda le verifiche che il Verifier esegue:
 
 Più concretamente, possiamo semplicemente scegliere valori casuali per $c_2, d_2$ tali che $c_2 + d_2 = e_2$, e lo stesso per $c_3, d_3$. Questo non richiede alcuna conoscenza di $c$ o $d$. Supponendo che il Prover pensi che verrà scelta $(2,3)$, allora il Verifier verifica solo che $c_2 + d_2 = e_2$ e $c_3 + d_3 = e_3$. Questo non va bene.
 
-Naturalmente, grazie ai commitment, il Prover non può cambiare idea. Se non avessimo questa verifica del commitment, potrebbe imbrogliare ogni singola volta. È per questo che abbiamo bisogno della proprietà di binding dei commitment, e che il commitment viene comunicato _prima_ che il Verifier decida quali quote esaminare.
+Naturalmente, grazie ai commitment, il Prover non può cambiare idea. Se non avessimo questa verifica del commitment, potrebbe imbrogliare ogni singola volta. È per questo che abbiamo bisogno della proprietà di binding dei commitment, ed è per questo che il commitment viene comunicato _prima_ che il Verifier decida quali quote esaminare.
 
-Qual è la probabilità di indovinare correttamente? Ci sono tre modi di scegliere due colonne: $(1,2), (1,3), (2,3)$. Questo significa che c'è una probabilità di $\frac{1}{3}$ di imbrogliare [^23]. Chiamiamo questo l'_errore di solidità_. Vorremmo ridurre questo errore a una probabilità molto più piccola.
+Qual è la probabilità di indovinare correttamente? Ci sono tre modi di scegliere due colonne: $(1,2), (1,3), (2,3)$. Questo significa che c'è una probabilità di $\frac{1}{3}$ di imbrogliare [^23]. È quello che chiamiamo _errore di solidità_. Vorremmo ridurre questo errore a una probabilità molto più piccola.
 
 Come possiamo farlo? Si scopre che possiamo farlo eseguendo il protocollo sigma su più round. Ogni volta il Verifier sceglie un nuovo insieme di due quote casuali. Naturalmente, dopo che il Verifier ha scelto, ad esempio, $(1,2)$ e $(2,3)$, conosce i valori di tutte e tre le quote e può facilmente ricostruire i valori originali di $c$ e $d$, il che non va bene.
 
-Il modo in cui aggiriamo questo problema, mantenendo comunque bassa la probabilità di imbrogliare, è creare nuove quote del segreto a ogni round. Per una data variabile, la dividiamo come $x = x_1 + x_2 + x_3$, dove $x_1, x_2, x_3$ sono valori casuali che soddisfano l'equazione. Facciamo questo per ogni variabile. Il Verifier effettua il challenge, chiedendo due quote, ed esegue le verifiche di coerenza e del commitment. Nel round successivo, usiamo ancora nuove quote casuali per dividere le nostre variabili. In questo modo, il Verifier non può combinare le informazioni ricevute nei diversi round, perché tutto ciò che vede sono quote casuali diverse.
+Il modo in cui aggiriamo questo problema, mantenendo comunque bassa la probabilità di imbrogliare, è creare nuove quote del segreto a ogni round. Per una data variabile, la dividiamo come $x = x_1 + x_2 + x_3$, dove $x_1, x_2, x_3$ sono valori casuali che soddisfano l'equazione. Facciamo questo per ogni variabile. Il Verifier invia il challenge, chiedendo due quote, ed esegue le verifiche di coerenza e del commitment. Nel round successivo, usiamo ancora nuove quote casuali per dividere le nostre variabili. In questo modo, il Verifier non può combinare le informazioni ricevute nei diversi round, perché tutto ciò che vede sono quote casuali diverse.
 
 Con questo, qual è la probabilità di imbrogliare? Per il vincolo di addizione sopra, a ogni esecuzione la probabilità è $\frac{1}{3}$, e se facciamo $n$ esecuzioni otteniamo:
 
@@ -654,7 +654,7 @@ Ecco alcune cose che ci aspettano più avanti:
 - Capire il quadro di riferimento PCS + Poly-IOP per i sistemi ZKP moderni
 - Diversi PCS: KZG/FRI/IPA
 - Capire i diversi domini: dimostrazione lato server vs lato client
-- Comprendere a fondo le dimensioni: dimensione del campo, post-quantistico, setup, assunzioni di sicurezza
+- Comprendere a fondo i diversi assi di valutazione: dimensione del campo, post-quantistico, setup, assunzioni di sicurezza
 - Come le blockchain pubbliche possono essere usate per verificare le prove
 - Perché gli STARK sono SNARK
 - Circuiti strutturati vs non strutturati
@@ -685,7 +685,7 @@ Abbiamo poi preso questi concetti chiave e visto come usarli per costruire una Z
 
 Successivamente, siamo entrati un po' più a fondo in alcuni argomenti specifici. Abbiamo visto come generalizzare i circuiti booleani in circuiti aritmetici usando campi finiti, e abbiamo passato in rassegna le proprietà degli zkSNARK e come si applicano a ZKBoo. Abbiamo sviluppato un'intuizione sul perché ZKBoo non raggiunge la succintezza. Infine, abbiamo accennato ad alcuni argomenti più avanzati che potremo esplorare più avanti.
 
-Se vuoi capire meglio, una buona idea è dare un'occhiata agli snippet di codice (Appendice A) e vedere come puoi estenderli o modificarli. Se qualcosa non ti è stato chiaro, non esitare a contattarci! Buona fortuna per il tuo percorso nel mondo ZK, e a presto.
+Se vuoi approfondire la tua comprensione, una buona idea è dare un'occhiata agli snippet di codice (Appendice A) e vedere come puoi estenderli o modificarli. Se qualcosa non ti è stato chiaro, non esitare a contattarci! Buona fortuna per il tuo percorso nel mondo ZK, e a presto.
 
 ## Ringraziamenti
 
@@ -885,7 +885,7 @@ A volte un andamento quasi-lineare, per esempio $O(n \log n)$, è accettato come
 [^27]: Esistono molti modi per commettere errori con Fiat-Shamir nella pratica, vedi [Fiat-Shamir in the Wild (paper)](https://orbilu.uni.lu/handle/10993/62161), e [How to Prove False Statements (paper)](https://eprint.iacr.org/2025/118).
 [^28]: Del tipo "tecnicamente corretto, il miglior tipo di corretto". Per esempio, molti progetti "ZK" non usano effettivamente la proprietà di conoscenza zero!
 [^29]: La solidità computazionale significa che uno schema è sicuro contro un avversario con risorse computazionali limitate. Una prova statisticamente solida reggerebbe anche contro un avversario "illimitato". Quest'ultimo caso è più raro nella crittografia del mondo reale. Questo può diventare piuttosto complesso nella letteratura accademica, con diverse nozioni di solidità - computazionale, statistica, simulata, estraibilità ecc. Le sottigliezze di queste distinzioni esulano dall'ambito di questo articolo, e non sono qualcosa di cui la maggior parte delle persone deve preoccuparsi, a meno che tu non voglia diventare un crittografo a tempo pieno.
-[^30]: Anche se meno comune, esistono sistemi di dimostrazione che sono succinti solo in una di queste dimensioni. Per esempio, Bulletproofs ha prove succinte ma tempo di verifica lineare.
+[^30]: Anche se meno comune, esistono sistemi di dimostrazione che sono succinti solo in una di queste dimensioni. Per esempio, Bulletproofs ha prove succinte ma un tempo di verifica lineare.
 [^31]: Questo è un termine della teoria della complessità computazionale. Parliamo di quanto qualcosa sia veloce o lento in funzione del suo input. Potremmo dire che O(1) significa che è "costante", oppure che O(n) significa che è "lineare", ecc. Sublineare significa meno che lineare, per esempio $\sqrt{n}$. Vedi [notazione Big-O](https://en.wikipedia.org/wiki/Big_O_notation) e [Big O Notation Tutorial](https://www.geeksforgeeks.org/analysis-algorithms-big-o-analysis/) per maggiori dettagli.
 [^32]: Per esempio, non importa se dobbiamo eseguire $2 \cdot n$ operazioni oppure $20 \cdot n$ operazioni: queste funzioni sono entrambe $O(n)$, ovvero _dell'ordine di $n$_.
 [^33]: Nella pratica, molte prove sono logaritmiche, $O(\log n)$. A volte va bene anche un andamento quasi-lineare, $O(n \log n)$, e viene comunque considerato "abbastanza succinto". Il caso migliore è $O(1)$, ma spesso comporta altri compromessi. Esempi di sistemi di dimostrazione succinti sono Groth16 e Plonk. Anche le costanti contano, specialmente quando si tratta di verifica on-chain. Ma questo esula dall'ambito di questo articolo. Vedi ad esempio le motivazioni per cui Groth16 o i commitment KZG sono spesso usati in Ethereum.
